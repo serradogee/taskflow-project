@@ -1,0 +1,161 @@
+﻿:root {
+    --color-fondo: #F5F5DC;
+    --color-principal: #FFFFF0;
+    --color-secundario: #708090;
+    --color-texto: #333;
+    --fuente-principal: 'Roboto', sans-serif;
+    --espaciado: 20px;
+    --transicion-suave: 0.3s ease-in-out;
+    --color-prioridad-alta: #e74c3c; /* Rojo para alta prioridad */
+    --color-prioridad-baja: #2ecc71; /* Verde para baja prioridad */
+    --color-prioridad-media-alta: #f1c40f; /* Amarillo para "Media/Alta" */
+}
+
+/* Resetear márgenes y fuentes */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--fuente-principal);
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+}
+
+/* Header */
+header {
+    background-color: #F5F5DC;
+    color: black;
+    padding: var(--espaciado);
+    text-align: center;
+}
+
+/* Main */
+main {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--espaciado);
+}
+
+/* Lista de tareas */
+.task-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espaciado);
+    flex: 1;
+}
+
+/* Formulario para añadir tarea */
+.add-task {
+    position: absolute;
+    top: 80px; /* Un poco debajo del header */
+    right: 20px;
+    background-color: #fff;
+    padding: var(--espaciado);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 250px;
+}
+
+    .add-task input,
+    .add-task select,
+    .add-task button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .add-task button {
+        background-color: #2ecc71;
+        color: white;
+        cursor: pointer;
+    }
+
+        .add-task button:hover {
+            background-color: #27ae60;
+        }
+
+/* Tarea */
+.task {
+    background-color: ghostwhite;
+    border-radius: 8px;
+    padding: var(--espaciado);
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-title {
+    font-size: 1.2em;
+}
+
+.task-category {
+    font-size: 0.9em;
+    color: var(--color-secundario);
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+}
+
+.priority-high {
+    background-color: var(--color-prioridad-alta);
+}
+
+.priority-low {
+    background-color: var(--color-prioridad-baja);
+}
+
+.priority-medium-high {
+    background-color: var(--color-prioridad-media-alta);
+}
+
+/* Estilo para las tareas completadas */
+.completed {
+    background-color: #dcdcdc; /* Fondo gris */
+    text-decoration: line-through; /* Tachado del texto */
+    opacity: 0.7; /* Opacidad reducida */
+}
+
+.task-checkbox {
+    margin-right: 10px; /* Separación entre el checkbox y el título */
+}
+
+/* El resto del estilo de la tarea sigue igual */
+.task {
+    background-color: ghostwhite;
+    border-radius: 8px;
+    padding: var(--espaciado);
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: var(--transicion-suave);
+}
+
+.task-title {
+    font-size: 1.2em;
+    display: inline-block; /* Para que el título y el checkbox estén en la misma línea */
+}
+
+.task-category {
+    font-size: 0.9em;
+    color: var(--color-secundario);
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+}
+
+.priority-high {
+    background-color: var(--color-prioridad-alta); /* Rojo para alta prioridad */
+}
+
+.priority-medium-high {
+    background-color: var(--color-prioridad-media-alta); /* Amarillo para Media/Alta */
+}
+
+.priority-low {
+    background-color: var(--color-prioridad-baja); /* Verde para baja prioridad */
+}

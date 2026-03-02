@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Lista de Tareas</h1>
+    </header>
+
+    <main>
+        <section class="task-list" id="taskList">
+            <!-- Tareas se agregarán aquí dinámicamente -->
+            <article class="task">
+                <h2 class="task-title">Salir a correr 5km</h2>
+                <p class="task-category">Categoría: Personales</p>
+                <span class="badge priority-high">Alta</span>  <!-- Alta prioridad -->
+            </article>
+
+            <article class="task">
+                <h2 class="task-title">Tender la lavadora</h2>
+                <p class="task-category">Categoría: Hogar</p>
+                <span class="badge priority-low">Baja</span>  <!-- Baja prioridad -->
+            </article>
+
+            <article class="task">
+                <h2 class="task-title">Entregar el dosier</h2>
+                <p class="task-category">Categoría: Trabajo</p>
+                <span class="badge priority-medium-high">Media/Alta</span>  <!-- Media/Alta prioridad -->
+            </article>
+        </section>
+    </main>
+
+    <!-- Área para añadir tarea -->
+    <aside class="add-task">
+        <h2>Añadir una nueva tarea</h2>
+        <form id="taskForm">
+            <label for="taskTitle">Título de la tarea:</label>
+            <input type="text" id="taskTitle" required>
+
+            <label for="taskCategory">Categoría:</label>
+            <select id="taskCategory">
+                <option value="Personales">Personales</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Trabajo">Trabajo</option>
+            </select>
+
+            <label for="taskPriority">Prioridad:</label>
+            <select id="taskPriority">
+                <option value="Alta">Alta</option>
+                <option value="Media/Alta">Media/Alta</option>
+                <option value="Baja">Baja</option>
+            </select>
+
+            <button type="submit">Añadir tarea</button>
+        </form>
+    </aside>
+
+    <script src="script.js"></script> <!-- Enlazamos el archivo de JavaScript -->
+</body>
+</html>
