@@ -19,9 +19,9 @@ body {
     min-height: 100vh;
 }
 
-/* Menú lateral fijo */
+/* Menú lateral */
 .sidebar {
-    width: 200px;
+    width: 0;
     background-color: #4E73DF; /* Azul oscuro */
     color: #fff;
     position: fixed;
@@ -30,33 +30,58 @@ body {
     height: 100%;
     padding-top: 20px;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden;
+    transition: 0.5s;
 }
 
-.sidebar-header {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
+    .sidebar.active {
+        width: 200px;
+    }
 
 .sidebar-menu {
     list-style: none;
     padding: 0;
 }
 
-.sidebar-menu li {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #3A5BA0; /* Morado oscuro */
+    .sidebar-menu li {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #3A5BA0; /* Morado oscuro */
+    }
+
+        .sidebar-menu li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .sidebar-menu li:hover {
+            background-color: #3A5BA0; /* Morado más oscuro */
+        }
+
+/* Botón de menú */
+.menu-toggle {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
 }
 
-.sidebar-menu li a {
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
+.menu-icon {
+    font-size: 30px;
+    color: #4E73DF;
 }
 
-.sidebar-menu li:hover {
-    background-color: #3A5BA0; /* Morado más oscuro */
+/* Botón de cerrar menú */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    background: none;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 /* Contenido */
@@ -85,28 +110,28 @@ header {
     align-items: flex-start;
 }
 
-.add-task input,
-.add-task select {
-    width: 80%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
+    .add-task input,
+    .add-task select {
+        width: 80%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
 
-.add-task button {
-    padding: 10px;
-    background-color: #6C63FF; /* Morado */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .add-task button {
+        padding: 10px;
+        background-color: #6C63FF; /* Morado */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-.add-task button:hover {
-    background-color: #5A50E0;
-}
+        .add-task button:hover {
+            background-color: #5A50E0;
+        }
 
 .task-list {
     display: flex;
@@ -123,19 +148,19 @@ header {
     transition: transform 0.3s ease;
 }
 
-.task:hover {
-    transform: scale(1.05);
-}
+    .task:hover {
+        transform: scale(1.05);
+    }
 
-.task h3 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
+    .task h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
 
-.task p {
-    font-size: 1em;
-    margin-bottom: 10px;
-}
+    .task p {
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
 
 .badge {
     padding: 5px 10px;
@@ -206,4 +231,11 @@ textarea {
 
     .task {
         width: 100%;
-        max-width:
+        max-width: 100%;
+    }
+
+    /* Menú en dispositivos pequeños */
+    .sidebar-menu li {
+        font-size: 16px;
+    }
+}
