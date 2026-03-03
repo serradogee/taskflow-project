@@ -16,7 +16,7 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: var(--fuente-principal);
+    font-family: var(--fuente-principal);  
     background-color: var(--color-fondo);
     color: var(--color-texto);
 }
@@ -53,19 +53,19 @@ main {
     padding: var(--espaciado);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 250px;
-    /* Ajustamos el tamaño */
+    width: 220px; /* Reducido el tamaño del cuadro */
     height: auto;
-    max-height: 400px;
-    overflow-y: auto;
+    max-height: 300px; /* Reducido el alto máximo */
+    overflow-y: auto; /* Permite el desplazamiento vertical si es necesario */
+    margin-bottom: 20px; /* Margen inferior para evitar que se pegue a la siguiente tarea */
 }
 
     .add-task input,
     .add-task select,
     .add-task button {
         width: 100%;
-        padding: 10px;
-        margin: 10px 0;
+        padding: 8px; /* Reducido el tamaño del padding */
+        margin: 8px 0; /* Reducido el margen entre los elementos */
         border-radius: 5px;
         border: 1px solid #ccc;
         color: black; /* Texto negro */
@@ -132,15 +132,15 @@ main {
 }
 
 .task-checkbox {
-    margin-right: 10px; /* Separación entre el checkbox y el título */
+    margin-right: 10px; /* Separación razonable entre el checkbox y el título */
 }
 
 /* Estilo del aside */
 aside {
     background-color: #2c3e50;
-    color: white;
+    color: black; /* Corregido de "blac" a "black" */
     padding: var(--espaciado);
-    width: 200px;
+    width: 250px; /* Aumento el ancho para que se vea mejor */
     margin-left: 20px;
 }
 
@@ -150,7 +150,7 @@ aside {
     }
 
         aside ul li {
-            padding: 10px 0;
+            padding: 1px 0;
         }
 
             aside ul li:hover {
