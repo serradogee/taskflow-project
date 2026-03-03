@@ -5,161 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOTEYOU</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <!-- Botón de menú en dispositivos pequeños -->
-        <div class="menu-toggle" id="menuToggle">
-            <span class="menu-icon">&#9776;</span> <!-- Icono de hamburguesa -->
-        </div>
 
-        <!-- Menú de navegación -->
-        <nav class="sidebar" id="sidebar">
-            <!-- Botón para cerrar el menú -->
-            <button class="close-btn" id="closeMenu">×</button>
-            <ul class="sidebar-menu">
-                <li><a href="#" onclick="showSection('taskSection')">📝 Tareas</a></li>
-                <li><a href="#" onclick="showSection('calendarSection')">📅 Calendario</a></li>
-                <li><a href="#" onclick="showSection('notesSection')">🗒️ Notas</a></li>
-                <li><a href="#">⚙️ Configuración</a></li>
-            </ul>
+    <header>
+        <h1 onclick="showView('tasksView')">NOTEYOU</h1>
+        <nav>
+            <button onclick="showView('tasksView')">📝</button>
+            <button onclick="showView('calendarView')">📅</button>
         </nav>
+    </header>
 
-        <!-- Área principal -->
-        <div class="content">
-            <header>
-                <h1>Mis Áreas</h1>
-            </header>
+    <main>
 
-            <!-- Filtro de tareas -->
-            <section id="taskFilterSection">
-                <label for="taskFilter">Filtrar por prioridad:</label>
-                <select id="taskFilter" onchange="filterTasks()">
-                    <option value="all">Todas</option>
+        <!-- ================= TAREAS ================= -->
+        <section id="tasksView">
+
+            <h2>Nueva Tarea</h2>
+
+            <div class="card">
+                <input type="text" id="taskTitle" placeholder="¿Qué tienes que hacer?">
+                <input type="date" id="taskDate">
+
+                <select id="taskCategory"></select>
+
+                <select id="taskPriority">
                     <option value="Alta">Alta</option>
-                    <option value="Media/Alta">Media/Alta</option>
+                    <option value="Media">Media</option>
                     <option value="Baja">Baja</option>
                 </select>
-            </section>
 
-            <!-- Sección de tareas -->
-            <section id="taskSection">
-                <div class="add-task">
-                    <input type="text" id="taskTitle" placeholder="Nueva tarea" required>
-                    <select id="taskPriority">
-                        <option value="Alta">Alta</option>
-                        <option value="Media/Alta">Media/Alta</option>
-                        <option value="Baja">Baja</option>
-                    </select>
-                    <button onclick="addTask()">Añadir Tarea</button>
-                </div>
+                <button id="addBtn" onclick="addTask()">Añadir</button>
+            </div>
 
-                <div class="task-list" id="taskList">
-                    <!-- Tareas de ejemplo -->
-                    <div class="task" data-priority="Alta">
-                        <h3>Entregar informe</h3>
-                        <p class="task-category">Trabajo</p>
-                        <span class="badge priority-high">Alta</span>
-                    </div>
-                    <div class="task" data-priority="Media/Alta">
-                        <h3>Hacer la compra</h3>
-                        <p class="task-category">Hogar</p>
-                        <span class="badge priority-medium-high">Media/Alta</span>
-                    </div>
-                    <div class="task" data-priority="Baja">
-                        <h3>Leer un libro</h3>
-                        <p class="task-category">Personales</p>
-                        <span class="badge priority-low">Baja</span>
-                    </div>
-                </div>
-            </section>
+            <h3>Filtros</h3>
 
-            <!-- Calendario -->
-            <section id="calendarSection" style="display:none;">
-                <h2>Calendario</h2>
-                <div id="calendar"></div> <!-- Calendario aquí -->
-            </section>
+            <div class="card">
+                <input type="text" id="searchInput" placeholder="Buscar tarea...">
 
-            <!-- Notas -->
-            <section id="notesSection" style="display:none;">
-                <h2>Mis Notas</h2>
-                <textarea id="notes" placeholder="Escribe tus notas aquí..."></textarea>
-            </section>
-        </div>
-    </div>
+                <select id="filterPriority">
+                    <option value="all">Todas prioridades</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                </select>
 
-    <script>
-        // Función para cambiar la visibilidad de las secciones
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll('section');
-            sections.forEach(section => {
-                section.style.display = 'none';
-            });
+                <select id="filterCategory">
+                    <option value="all">Todas categorías</option>
+                </select>
 
-            document.getElementById(sectionId).style.display = 'block';
-        }
+                <input type="date" id="filterDate">
 
-        // Función para agregar tareas
-        function addTask() {
-            const taskTitle = document.getElementById('taskTitle').value;
-            const taskPriority = document.getElementById('taskPriority').value;
-            const taskList = document.getElementById('taskList');
+                <button id="applyBtn" onclick="renderTasks()">Aplicar filtros</button>
+            </div>
 
-            if (taskTitle.trim() !== '') {
-                const taskElement = document.createElement('div');
-                taskElement.classList.add('task');
-                taskElement.setAttribute('data-priority', taskPriority);
+            <div id="taskList"></div>
 
-                const taskTitleElement = document.createElement('h3');
-                taskTitleElement.textContent = taskTitle;
+        </section>
 
-                const taskCategoryElement = document.createElement('p');
-                taskCategoryElement.classList.add('task-category');
-                taskCategoryElement.textContent = 'Categoría: ' + (taskPriority === 'Alta' ? 'Trabajo' : taskPriority === 'Media/Alta' ? 'Hogar' : 'Personales');
+        <!-- ================= CALENDARIO ================= -->
+        <section id="calendarView" style="display:none;">
 
-                const badgeElement = document.createElement('span');
-                badgeElement.classList.add('badge');
-                badgeElement.classList.add('priority-' + taskPriority.toLowerCase().replace('/', '').replace(' ', '-'));
-                badgeElement.textContent = taskPriority;
+            <h2>Calendario</h2>
 
-                taskElement.appendChild(taskTitleElement);
-                taskElement.appendChild(taskCategoryElement);
-                taskElement.appendChild(badgeElement);
+            <div class="calendar-header">
+                <button onclick="changeMonth(-1)">◀</button>
+                <h3 id="monthYear"></h3>
+                <button onclick="changeMonth(1)">▶</button>
+            </div>
 
-                taskList.appendChild(taskElement);
+            <div id="calendar"></div>
 
-                // Limpiar el campo de tarea
-                document.getElementById('taskTitle').value = '';
-            }
-        }
+            <h3 id="calendarTaskTitle" style="margin-top:20px;"></h3>
+            <div id="calendarTaskList"></div>
 
-        // Función para filtrar las tareas por prioridad
-        function filterTasks() {
-            const filterValue = document.getElementById('taskFilter').value;
-            const tasks = document.querySelectorAll('.task');
+        </section>
 
-            tasks.forEach(task => {
-                const taskPriority = task.getAttribute('data-priority');
+    </main>
 
-                if (filterValue === 'all' || taskPriority === filterValue) {
-                    task.style.display = 'block';
-                } else {
-                    task.style.display = 'none';
-                }
-            });
-        }
-
-        // Menú desplegable (toggle)
-        document.getElementById('menuToggle').addEventListener('click', function () {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        });
-
-        // Cerrar el menú desplegable
-        document.getElementById('closeMenu').addEventListener('click', function () {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('active');
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

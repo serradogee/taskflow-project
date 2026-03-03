@@ -1,241 +1,175 @@
-/* Resetear estilos base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Fuentes y colores */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #F1F6F9;
-    color: #333;
+    margin: 0;
+    font-family: 'Inter',sans-serif;
+    background: #f9fafc;
+    color: #111;
 }
 
-/* Estructura general */
-.container {
-    display: flex;
-    flex-direction: row;
-    min-height: 100vh;
-}
-
-/* Menú lateral */
-.sidebar {
-    width: 0;
-    background-color: #4E73DF; /* Azul oscuro */
-    color: #fff;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    padding-top: 20px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    overflow-x: hidden;
-    transition: 0.5s;
-}
-
-    .sidebar.active {
-        width: 200px;
-    }
-
-.sidebar-menu {
-    list-style: none;
-    padding: 0;
-}
-
-    .sidebar-menu li {
-        padding: 15px;
-        text-align: center;
-        border-bottom: 1px solid #3A5BA0; /* Morado oscuro */
-    }
-
-        .sidebar-menu li a {
-            text-decoration: none;
-            color: #fff;
-            font-size: 18px;
-        }
-
-        .sidebar-menu li:hover {
-            background-color: #3A5BA0; /* Morado más oscuro */
-        }
-
-/* Botón de menú */
-.menu-toggle {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    cursor: pointer;
-}
-
-.menu-icon {
-    font-size: 30px;
-    color: #4E73DF;
-}
-
-/* Botón de cerrar menú */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 30px;
-    background: none;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-/* Contenido */
-.content {
-    margin-left: 220px;
-    padding: 20px;
-    width: 100%;
-    transition: margin-left 0.3s ease-in-out;
-}
-
-/* Cabecera */
 header {
-    background-color: #3A5BA0;
-    padding: 20px;
-    color: white;
-    text-align: center;
-    font-size: 2em;
-    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    z-index: 10;
 }
 
-/* Tareas */
-.add-task {
+    header h1 {
+        font-size: 20px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    header button {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+main {
+    padding: 20px;
+    max-width: 650px;
+    margin: auto;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 18px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.05);
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 10px;
 }
 
-    .add-task input,
-    .add-task select {
-        width: 80%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-
-    .add-task button {
-        padding: 10px;
-        background-color: #6C63FF; /* Morado */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-        .add-task button:hover {
-            background-color: #5A50E0;
-        }
-
-.task-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+input, select {
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+    font-size: 14px;
 }
 
-.task {
-    background-color: #fff;
-    border-radius: 8px;
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    background: #111;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+#addBtn.success,
+#applyBtn.success {
+    background: #e10600;
+}
+
+.task-card {
+    position: relative;
+    background: white;
     padding: 15px;
-    width: 250px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    border-radius: 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-    .task:hover {
-        transform: scale(1.05);
+    .task-card.completed {
+        opacity: 0.5;
+        text-decoration: line-through;
     }
 
-    .task h3 {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-    }
-
-    .task p {
-        font-size: 1em;
-        margin-bottom: 10px;
-    }
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #e10600;
+    font-size: 14px;
+    cursor: pointer;
+}
 
 .badge {
-    padding: 5px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
     color: white;
-    font-weight: bold;
+    font-size: 12px;
+    width: fit-content;
 }
 
-.priority-high {
-    background-color: #e74c3c; /* Rojo */
+.priority-alta {
+    background: #e10600;
 }
 
-.priority-medium-high {
-    background-color: #f1c40f; /* Amarillo */
+.priority-media {
+    background: #ff7a00;
 }
 
-.priority-low {
-    background-color: #2ecc71; /* Verde */
+.priority-baja {
+    background: #16a34a;
 }
 
-/* Calendario */
+.calendar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
 #calendar {
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 8px;
 }
 
-/* Notas */
-textarea {
-    width: 100%;
-    height: 200px;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    resize: none;
+.day {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    min-height: 80px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+    cursor: pointer;
+    font-size: 12px;
 }
 
-/* Estilo responsive */
-@media (max-width: 768px) {
-    .content {
-        margin-left: 0;
+    .day:hover {
+        background: #ffe5e5;
     }
 
-    .sidebar {
-        width: 100%;
-        position: static;
-        height: auto;
-        box-shadow: none;
+    .day strong {
+        display: block;
+        margin-bottom: 5px;
     }
 
-    .add-task input,
-    .add-task select {
-        width: 100%;
-    }
+.calendar-task {
+    background: #fff1f1;
+    padding: 8px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
 
-    .add-task button {
-        width: 100%;
-    }
-
-    /* Notas */
-    textarea {
-        width: 100%;
-        height: 150px;
-    }
-
-    .task-list {
-        justify-content: center;
-    }
-
-    .task {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    /* Menú en dispositivos pequeños */
-    .sidebar-menu li {
-        font-size: 16px;
+@media(max-width:500px) {
+    main {
+        padding: 15px;
     }
 }
