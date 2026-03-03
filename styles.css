@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-﻿:root {
+
+:root {
     --color-fondo: #F5F5DC;
     --color-principal: #FFFFF0;
     --color-secundario: #708090;
@@ -23,7 +23,7 @@ body {
 
 /* Header */
 header {
-    background-color: #F5F5DC;
+    background-color: var(--color-principal);
     color: black;
     padding: var(--espaciado);
     text-align: center;
@@ -83,59 +83,15 @@ main {
     padding: var(--espaciado);
     width: 250px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.task-title {
-    font-size: 1.2em;
-}
-
-.task-category {
-    font-size: 0.9em;
-    color: var(--color-secundario);
-}
-
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: white;
-}
-
-.priority-high {
-    background-color: var(--color-prioridad-alta);
-}
-
-.priority-low {
-    background-color: var(--color-prioridad-baja);
-}
-
-.priority-medium-high {
-    background-color: var(--color-prioridad-media-alta);
-}
-
-/* Estilo para las tareas completadas */
-.completed {
-    background-color: #dcdcdc; /* Fondo gris */
-    text-decoration: line-through; /* Tachado del texto */
-    opacity: 0.7; /* Opacidad reducida */
-}
-
-.task-checkbox {
-    margin-right: 10px; /* Separación entre el checkbox y el título */
-}
-
-/* El resto del estilo de la tarea sigue igual */
-.task {
-    background-color: ghostwhite;
-    border-radius: 8px;
-    padding: var(--espaciado);
-    width: 250px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: var(--transicion-suave);
 }
 
+    .task:hover {
+        transform: scale(1.05);
+    }
+
 .task-title {
     font-size: 1.2em;
-    display: inline-block; /* Para que el título y el checkbox estén en la misma línea */
 }
 
 .task-category {
@@ -153,89 +109,26 @@ main {
     background-color: var(--color-prioridad-alta); /* Rojo para alta prioridad */
 }
 
+.priority-low {
+    background-color: var(--color-prioridad-baja); /* Verde para baja prioridad */
+}
+
 .priority-medium-high {
     background-color: var(--color-prioridad-media-alta); /* Amarillo para Media/Alta */
 }
 
-.priority-low {
-    background-color: var(--color-prioridad-baja); /* Verde para baja prioridad */
-}
-=======
-﻿:root {
-    --color-fondo: #F5F5DC;
-    --color-principal: #FFFFF0;
-    --color-secundario: #708090;
-    --color-texto: #333;
-    --fuente-principal: 'Roboto', sans-roboto;
-    --espaciado: 20px;
-    --transicion-suave: 0.3s ease-in-out;
-    --color-prioridad-alta: #e74c3c; /* Rojo para alta prioridad */
-    --color-prioridad-baja: #2ecc71; /* Verde para baja prioridad */
-
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: var(--fuente-principal);
-        background-color: var(--color-fondo);
-        color: var(--color-texto);
-    }
-
-    header {
-        background-color: var(--color-principal);
-        color: black;
-        padding: var(--espaciado);
-        text-align: center;
-    }
-
-    main {
-        display: flex;
-        justify-content: center;
-        padding: var(--espaciado);
-    }
-
-    .task-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--espaciado);
-    }
-
-    .task {
-        background-color: ghostwhite;
-        border-radius: 8px;
-        padding: var(--espaciado);
-        width: 250px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: var(--transicion-suave);
-    }
-
-        .task:hover {
-            transform: scale(1.05);
-        }
-
-    .task-title {
-        font-size: 1.2em;
-    }
-
-    .task-category {
-        font-size: 0.9em;
-        color: var(--color-secundario);
-    }
-
-    .badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        color: white;
-    }
-
-    .priority-high {
-        background-color: var(--color-prioridad-alta); /* Usando la variable para alta prioridad */
-    }
-
-    .priority-low {
-        background-color: var(--color-prioridad-baja); /* Usando la variable para baja prioridad */
-    }
+/* Estilo para las tareas completadas */
+.completed {
+    background-color: #dcdcdc; /* Fondo gris */
+    text-decoration: line-through; /* Tachado del texto */
+    opacity: 0.7; /* Opacidad reducida */
 }
 
+.task-checkbox {
+    margin-right: 10px; /* Separación entre el checkbox y el título */
+}
+
+/* Estilo del aside */
 aside {
     background-color: #2c3e50;
     color: white;
@@ -257,6 +150,7 @@ aside {
                 background-color: #34495e;
             }
 
+/* Media Queries para responsividad */
 @media (max-width: 768px) {
     main {
         flex-direction: column;
@@ -292,9 +186,3 @@ aside {
             background-color: #2980b9; /* Fondo azul para "Trabajo" */
         }
 }
-
-.priority-medium-high {
-    background-color: #f1c40f; /* Amarillo para "Media/Alta" */
-}
-}
->>>>>>> 2bba9b8948f9bf5f4f35909fe50ec6ff861e35f9
