@@ -1,65 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M Tareas</title>
+    <title>NOTEYOU</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="https://emoji.com/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <header>
-        <h1>Mis Tareas</h1>
-    </header>
+    <div class="container">
+        <!-- Botón de menú en dispositivos pequeños -->
+        <div class="menu-toggle" id="menuToggle">
+            <span class="menu-icon">&#9776;</span>
+        </div>
 
-    <main>
-        <section class="task-list" id="taskList">
-            <!-- Tareas se agregarán aquí dinámicamente -->
-            <article class="task">
-                <h2 class="task-title">Salir a correr 5km</h2>
-                <p class="task-category">Categoría: Personales</p>
-                <span class="badge priority-high">Alta</span>  <!-- Alta prioridad -->
-            </article>
+        <!-- Menú lateral -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Menú</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" id="taskMenu"><span>📝 Tareas</span></a></li>
+                <li><a href="#" id="calendarMenu"><span>📅 Calendario</span></a></li>
+                <li><a href="#" id="notesMenu"><span>🗒️ Notas</span></a></li>
+                <li><a href="#" id="settingsMenu"><span>⚙️ Configuración</span></a></li>
+            </ul>
+        </nav>
 
-            <article class="task">
-                <h2 class="task-title">Tender la lavadora</h2>
-                <p class="task-category">Categoría: Hogar</p>
-                <span class="badge priority-low">Baja</span>  <!-- Baja prioridad -->
-            </article>
+        <!-- Área principal -->
+        <div class="content">
+            <header>
+                <h1>Lista de Tareas y Notas</h1>
+            </header>
 
-            <article class="task">
-                <h2 class="task-title">Entregar el dosier</h2>
-                <p class="task-category">Categoría: Trabajo</p>
-                <span class="badge priority-medium-high">Media/Alta</span>  <!-- Media/Alta prioridad -->
-            </article>
-        </section>
-    </main>
+            <!-- Sección de tareas -->
+            <section id="taskSection">
+                <div class="add-task">
+                    <input type="text" id="taskTitle" placeholder="Nueva tarea" required>
+                    <select id="taskPriority">
+                        <option value="Alta">Alta</option>
+                        <option value="Media/Alta">Media/Alta</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                    <button onclick="addTask()">Añadir Tarea</button>
+                </div>
 
-    <!-- Área para añadir tarea -->
-    <aside class="add-task">
-        <h2>Añadir una nueva tarea</h2>
-        <form id="taskForm">
-            <label for="taskTitle">Título de la tarea:</label>
-            <input type="text" id="taskTitle" required>
+                <div class="task-list" id="taskList">
+                    <!-- Tareas de ejemplo -->
+                    <div class="task">
+                        <h3>Entregar informe</h3>
+                        <p class="task-category">Trabajo</p>
+                        <span class="badge priority-high">Alta</span>
+                    </div>
+                    <div class="task">
+                        <h3>Hacer la compra</h3>
+                        <p class="task-category">Hogar</p>
+                        <span class="badge priority-medium-high">Media/Alta</span>
+                    </div>
+                    <div class="task">
+                        <h3>Leer un libro</h3>
+                        <p class="task-category">Personales</p>
+                        <span class="badge priority-low">Baja</span>
+                    </div>
+                </div>
+            </section>
 
-            <label for="taskCategory">Categoría:</label>
-            <select id="taskCategory">
-                <option value="Personales">Personales</option>
-                <option value="Hogar">Hogar</option>
-                <option value="Trabajo">Trabajo</option>
-            </select>
+            <!-- Calendario -->
+            <section id="calendarSection" style="display:none;">
+                <h2>Calendario</h2>
+                <div id="calendar"></div> <!-- Calendario aquí -->
+            </section>
 
-            <label for="taskPriority">Prioridad:</label>
-            <select id="taskPriority">
-                <option value="Alta">Alta</option>
-                <option value="Media/Alta">Media/Alta</option>
-                <option value="Baja">Baja</option>
-            </select>
+            <!-- Notas -->
+            <section id="notesSection" style="display:none;">
+                <h2>Mis Notas</h2>
+                <textarea id="notes" placeholder="Escribe tus notas aquí..."></textarea>
+            </section>
+        </div>
+    </div>
 
-            <button type="submit">Añadir tarea</button>
-        </form>
-    </aside>
-
-    <script src="script.js"></script> <!-- Enlazamos el archivo de JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/fullcalendar.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
