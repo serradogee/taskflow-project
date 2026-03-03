@@ -21,7 +21,7 @@ body {
 
 /* Menú lateral fijo */
 .sidebar {
-    width: 220px;
+    width: 200px;
     background-color: #4E73DF; /* Azul oscuro */
     color: #fff;
     position: fixed;
