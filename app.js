@@ -1,67 +1,74 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-let categories = JSON.parse(localStorage.getItem("categories")) || ["Trabajo", "Hogar", "Personales", "Otro"];
 let currentDate = new Date();
 
-// INICIO
+const emojiMap = {
+    "deporte": "⚽",
+    "comida": "🍔",
+    "trabajo": "💼",
+    "estudio": "📚",
+    "salud": "💊",
+    "otro": "✨"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-    renderCategories();
     renderTasks();
     renderCalendar();
 });
 
-// CAMBIAR VISTA
+// VISTA
 function showView(id) {
     document.getElementById("tasksView").style.display = "none";
     document.getElementById("calendarView").style.display = "none";
     document.getElementById(id).style.display = "block";
-}
-
-// CATEGORÍAS
-function renderCategories() {
-    const select = document.getElementById("taskCategory");
-    const filterSelect = document.getElementById("filterCategory");
-
-    select.innerHTML = "";
-    filterSelect.innerHTML = '<option value="all">Todas categorías</option>';
-
-    categories.forEach(cat => {
-        select.innerHTML += `<option value="${cat}">${cat}</option>`;
-        filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-    });
+    closeCalendarZoom();
 }
 
 // AÑADIR TAREA
 function addTask() {
     const title = document.getElementById("taskTitle").value.trim();
     const date = document.getElementById("taskDate").value;
-    const category = document.getElementById("taskCategory").value;
+    const time = document.getElementById("taskTime").value;
+    let category = document.getElementById("taskCategory").value.trim();
     const priority = document.getElementById("taskPriority").value;
 
     if (!title || !date) return;
 
+    if (!category) category = "Otro";
+
+    let emoji = "";
+    Object.keys(emojiMap).forEach(key => {
+        if (category.toLowerCase().includes(key)) emoji = emojiMap[key];
+    });
+    if (!emoji) emoji = emojiMap["otro"];
+
     tasks.push({
         id: Date.now(),
-        title,
+        title: title + " " + emoji,
         date,
+        time,
         category,
         priority,
         completed: false
     });
 
+    tasks.sort((a, b) => {
+        let da = a.date + (a.time || "00:00");
+        let db = b.date + (b.time || "00:00");
+        return da.localeCompare(db);
+    });
+
     localStorage.setItem("tasks", JSON.stringify(tasks));
-    renderTasks();
-    renderCalendar();
-
     document.getElementById("taskTitle").value = "";
+    document.getElementById("taskTime").value = "";
+    document.getElementById("taskCategory").value = "";
 
-    // feedback visual
     const btn = document.getElementById("addBtn");
     btn.classList.add("success");
     btn.textContent = "✓ Añadido";
-    setTimeout(() => {
-        btn.classList.remove("success");
-        btn.textContent = "Añadir";
-    }, 1500);
+    setTimeout(() => { btn.classList.remove("success"); btn.textContent = "Añadir"; }, 1500);
+
+    renderTasks();
+    renderCalendar();
 }
 
 // RENDER TAREAS
@@ -71,38 +78,31 @@ function renderTasks() {
 
     const search = document.getElementById("searchInput").value.toLowerCase();
     const filterPriority = document.getElementById("filterPriority").value;
-    const filterCategory = document.getElementById("filterCategory").value;
+    const filterCategory = document.getElementById("filterCategory").value.toLowerCase();
     const filterDate = document.getElementById("filterDate").value;
 
     tasks
         .filter(t => t.title.toLowerCase().includes(search))
         .filter(t => filterPriority === "all" || t.priority === filterPriority)
-        .filter(t => filterCategory === "all" || t.category === filterCategory)
+        .filter(t => !filterCategory || t.category.toLowerCase().includes(filterCategory))
         .filter(t => !filterDate || t.date === filterDate)
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
         .forEach(task => {
             const card = document.createElement("div");
             card.className = "task-card" + (task.completed ? " completed" : "");
-
             card.innerHTML = `
 <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
 <input type="checkbox" ${task.completed ? "checked" : ""} onclick="toggleComplete(${task.id})">
 <strong>${task.title}</strong>
-<small>${task.category} | ${task.date}</small>
+<small>${task.category} | ${task.date}${task.time ? " " + task.time : ""}</small>
 <span class="badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
 `;
-
             list.appendChild(card);
         });
 
-    // feedback filtros
     const applyBtn = document.getElementById("applyBtn");
     applyBtn.classList.add("success");
     applyBtn.textContent = "✓ Aplicado";
-    setTimeout(() => {
-        applyBtn.classList.remove("success");
-        applyBtn.textContent = "Aplicar filtros";
-    }, 1200);
+    setTimeout(() => { applyBtn.classList.remove("success"); applyBtn.textContent = "Aplicar filtros"; }, 1200);
 }
 
 // COMPLETAR
@@ -110,6 +110,7 @@ function toggleComplete(id) {
     tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
     localStorage.setItem("tasks", JSON.stringify(tasks));
     renderTasks();
+    renderCalendar();
 }
 
 // ELIMINAR
@@ -138,34 +139,49 @@ function renderCalendar() {
 
     for (let d = 1; d <= daysInMonth; d++) {
         const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-
         const dayDiv = document.createElement("div");
         dayDiv.className = "day";
         dayDiv.innerHTML = `<strong>${d}</strong>`;
 
-        if (tasks.some(t => t.date === fullDate)) {
+        const dayTasks = tasks.filter(t => t.date === fullDate);
+        if (dayTasks.length) {
             dayDiv.style.border = "2px solid #e10600";
+            let tasksHTML = "";
+            dayTasks.slice(0, 3).forEach(t => { tasksHTML += `<div class="day-tasks">${t.title}</div>`; });
+            dayDiv.innerHTML += tasksHTML;
         }
 
         dayDiv.onclick = () => {
-            showView("calendarView");
-            document.getElementById("calendarTaskTitle").textContent = "Tareas del " + fullDate;
-            renderCalendarTasks(fullDate);
+            if (dayTasks.length) showCalendarZoom(fullDate);
         };
 
         calendar.appendChild(dayDiv);
     }
 }
 
+// ZOOM CALENDARIO
+function showCalendarZoom(date) {
+    document.getElementById("calendarDayDetail").style.display = "flex";
+    document.getElementById("calendarTaskTitle").textContent = "Tareas del " + date;
+    renderCalendarTasks(date);
+}
+
+function closeCalendarZoom() {
+    document.getElementById("calendarDayDetail").style.display = "none";
+}
+
 function renderCalendarTasks(date) {
     const list = document.getElementById("calendarTaskList");
     list.innerHTML = "";
-
     tasks.filter(t => t.date === date).forEach(t => {
-        list.innerHTML += `<div class="calendar-task">${t.title}</div>`;
+        const div = document.createElement("div");
+        div.className = "calendar-task";
+        div.innerHTML = `<strong>${t.title}</strong> <small>${t.time ? t.time : ""} | ${t.category}</small>`;
+        list.appendChild(div);
     });
 }
 
+// CAMBIAR MES
 function changeMonth(step) {
     currentDate.setMonth(currentDate.getMonth() + step);
     renderCalendar();
