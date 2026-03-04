@@ -10,47 +10,53 @@
 <body>
 
     <header>
-        <h1 onclick="showView('tasksView')">NOTEYOU</h1>
+        <h1 onclick="showView('homeView')">NOTEYOU</h1>
         <nav>
-            <button onclick="showView('tasksView')">📝</button>
-            <button onclick="showView('calendarView')">📅</button>
+            
+            <button onclick="showView('tasksView')">Tareas</button>
+            <button onclick="showView('calendarView')">Calendario</button>
         </nav>
     </header>
 
     <main>
 
-        <!-- ================== NUEVA TAREA ================== -->
-        <section id="tasksView">
+        <!-- ================== INICIO (CREAR TAREA) ================== -->
+        <section id="homeView">
 
             <h2>Nueva Tarea</h2>
 
-            <div class="card form-card">
+            <div class="card">
                 <input type="text" id="taskTitle" placeholder="¿Qué tienes que hacer?">
                 <input type="date" id="taskDate">
-                <input type="time" id="taskTime" placeholder="Hora (opcional)">
-                <input type="text" id="taskCategory" placeholder="Categoría (puedes escribir)">
-
+                <input type="time" id="taskTime">
+                <input type="text" id="taskCategory" placeholder="Categoría libre">
                 <select id="taskPriority">
                     <option value="Alta">Alta</option>
                     <option value="Media">Media</option>
                     <option value="Baja">Baja</option>
                 </select>
 
-                <button id="addBtn" onclick="addTask()">Añadir</button>
+                <button id="addBtn" onclick="addTask()">Crear Tarea</button>
             </div>
 
-            <h3>Filtros</h3>
-            <div class="card filters">
-                <input type="text" id="searchInput" placeholder="Buscar tarea...">
+        </section>
+
+        <!-- ================== TAREAS ================== -->
+        <section id="tasksView" style="display:none;">
+
+            <h2>Todas las Tareas</h2>
+
+            <div class="filter-line">
+                <input type="text" id="filterName" placeholder="Nombre">
+                <input type="date" id="filterDay">
+                <input type="text" id="filterCategory" placeholder="Categoría">
                 <select id="filterPriority">
-                    <option value="all">Todas prioridades</option>
+                    <option value="all">Dificultad</option>
                     <option value="Alta">Alta</option>
                     <option value="Media">Media</option>
                     <option value="Baja">Baja</option>
                 </select>
-                <input type="text" id="filterCategory" placeholder="Filtrar por categoría">
-                <input type="date" id="filterDate">
-                <button id="applyBtn" onclick="renderTasks()">Aplicar filtros</button>
+                <button onclick="renderTasks()">Filtrar</button>
             </div>
 
             <div id="taskList" class="task-grid"></div>
@@ -59,6 +65,7 @@
 
         <!-- ================== CALENDARIO ================== -->
         <section id="calendarView" style="display:none;">
+
             <h2>Calendario</h2>
 
             <div class="calendar-header">
@@ -69,12 +76,11 @@
 
             <div id="calendar"></div>
 
-            <!-- MODAL ZOOM -->
-            <div id="calendarDayDetail" class="calendar-zoom" style="display:none;">
-                <div class="calendar-zoom-content">
-                    <h3 id="calendarTaskTitle"></h3>
-                    <div id="calendarTaskList" class="task-grid"></div>
-                    <button onclick="closeCalendarZoom()">Cerrar</button>
+            <div id="calendarModal" class="calendar-modal" style="display:none;">
+                <div class="calendar-modal-content">
+                    <h3 id="modalTitle"></h3>
+                    <div id="modalTasks" class="task-grid"></div>
+                    <button onclick="closeModal()">Cerrar</button>
                 </div>
             </div>
 

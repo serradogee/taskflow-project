@@ -1,49 +1,44 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
 
-const emojiMap = {
-    "deporte": "⚽",
-    "comida": "🍔",
-    "trabajo": "💼",
-    "estudio": "📚",
-    "salud": "💊",
-    "otro": "✨"
-};
-
 document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
     renderCalendar();
 });
 
-// VISTA
+/* ---------------- VISTAS ---------------- */
+
 function showView(id) {
+    document.getElementById("homeView").style.display = "none";
     document.getElementById("tasksView").style.display = "none";
     document.getElementById("calendarView").style.display = "none";
+
     document.getElementById(id).style.display = "block";
-    closeCalendarZoom();
+
+    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+
+    if (id === "homeView") document.querySelectorAll("nav button")[0].classList.add("active");
+    if (id === "tasksView") document.querySelectorAll("nav button")[1].classList.add("active");
+    if (id === "calendarView") document.querySelectorAll("nav button")[2].classList.add("active");
 }
 
-// AÑADIR TAREA
+/* ---------------- CREAR TAREA ---------------- */
+
 function addTask() {
     const title = document.getElementById("taskTitle").value.trim();
     const date = document.getElementById("taskDate").value;
     const time = document.getElementById("taskTime").value;
-    let category = document.getElementById("taskCategory").value.trim();
+    const category = document.getElementById("taskCategory").value.trim() || "Sin categoría";
     const priority = document.getElementById("taskPriority").value;
 
-    if (!title || !date) return;
-
-    if (!category) category = "Otro";
-
-    let emoji = "";
-    Object.keys(emojiMap).forEach(key => {
-        if (category.toLowerCase().includes(key)) emoji = emojiMap[key];
-    });
-    if (!emoji) emoji = emojiMap["otro"];
+    if (!title || !date) {
+        alert("Debes poner título y fecha");
+        return;
+    }
 
     tasks.push({
         id: Date.now(),
-        title: title + " " + emoji,
+        title,
         date,
         time,
         category,
@@ -51,77 +46,137 @@ function addTask() {
         completed: false
     });
 
+    // Ordenar por fecha y hora
     tasks.sort((a, b) => {
-        let da = a.date + (a.time || "00:00");
-        let db = b.date + (b.time || "00:00");
+        const da = a.date + (a.time || "23:59");
+        const db = b.date + (b.time || "23:59");
         return da.localeCompare(db);
     });
 
     localStorage.setItem("tasks", JSON.stringify(tasks));
+
     document.getElementById("taskTitle").value = "";
     document.getElementById("taskTime").value = "";
     document.getElementById("taskCategory").value = "";
 
-    const btn = document.getElementById("addBtn");
-    btn.classList.add("success");
-    btn.textContent = "✓ Añadido";
-    setTimeout(() => { btn.classList.remove("success"); btn.textContent = "Añadir"; }, 1500);
-
     renderTasks();
     renderCalendar();
+
+    showTaskCreatedMessage();
 }
 
-// RENDER TAREAS
+/* ---------------- MENSAJE TEMPORAL ---------------- */
+
+function showTaskCreatedMessage() {
+    const msg = document.createElement("div");
+    msg.textContent = "✅ Tarea creada";
+    msg.style.position = "fixed";
+    msg.style.top = "20px";
+    msg.style.right = "20px";
+    msg.style.background = "#16a34a";
+    msg.style.color = "white";
+    msg.style.padding = "12px 20px";
+    msg.style.borderRadius = "12px";
+    msg.style.boxShadow = "0 5px 20px rgba(0,0,0,0.1)";
+    msg.style.zIndex = 1000;
+    msg.style.fontWeight = "600";
+    msg.style.opacity = "0";
+    msg.style.transition = "opacity 0.4s, transform 0.4s";
+    msg.style.transform = "translateY(-20px)";
+
+    document.body.appendChild(msg);
+
+    setTimeout(() => {
+        msg.style.opacity = "1";
+        msg.style.transform = "translateY(0)";
+    }, 10);
+
+    setTimeout(() => {
+        msg.style.opacity = "0";
+        msg.style.transform = "translateY(-20px)";
+        setTimeout(() => msg.remove(), 400);
+    }, 2000);
+}
+
+/* ---------------- RENDER TAREAS ---------------- */
+
 function renderTasks() {
     const list = document.getElementById("taskList");
     list.innerHTML = "";
 
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const filterPriority = document.getElementById("filterPriority").value;
-    const filterCategory = document.getElementById("filterCategory").value.toLowerCase();
-    const filterDate = document.getElementById("filterDate").value;
+    const name = document.getElementById("filterName").value.toLowerCase();
+    const day = document.getElementById("filterDay").value;
+    const category = document.getElementById("filterCategory").value.toLowerCase();
+    const priority = document.getElementById("filterPriority").value;
 
-    tasks
-        .filter(t => t.title.toLowerCase().includes(search))
-        .filter(t => filterPriority === "all" || t.priority === filterPriority)
-        .filter(t => !filterCategory || t.category.toLowerCase().includes(filterCategory))
-        .filter(t => !filterDate || t.date === filterDate)
-        .forEach(task => {
-            const card = document.createElement("div");
-            card.className = "task-card" + (task.completed ? " completed" : "");
-            card.innerHTML = `
-<button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
-<input type="checkbox" ${task.completed ? "checked" : ""} onclick="toggleComplete(${task.id})">
-<strong>${task.title}</strong>
-<small>${task.category} | ${task.date}${task.time ? " " + task.time : ""}</small>
-<span class="badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
-`;
-            list.appendChild(card);
-        });
+    let filtered = tasks
+        .filter(t => t.title.toLowerCase().includes(name))
+        .filter(t => !day || t.date === day)
+        .filter(t => t.category.toLowerCase().includes(category))
+        .filter(t => priority === "all" || t.priority === priority);
 
-    const applyBtn = document.getElementById("applyBtn");
-    applyBtn.classList.add("success");
-    applyBtn.textContent = "✓ Aplicado";
-    setTimeout(() => { applyBtn.classList.remove("success"); applyBtn.textContent = "Aplicar filtros"; }, 1200);
+    // Separar pendientes y completadas
+    let pending = filtered.filter(t => !t.completed);
+    let completed = filtered.filter(t => t.completed);
+
+    [...pending, ...completed].forEach(task => {
+        const div = document.createElement("div");
+        div.className = "task-card";
+        if (task.completed) div.classList.add("flipped");
+
+        div.innerHTML = `
+        <div class="card-inner">
+            <div class="card-front">
+                <div class="task-top">
+                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})">
+                    <strong class="${task.completed ? 'done-text' : ''}">${task.title}</strong>
+                </div>
+                <small>${formatDate(task.date)} ${task.time || ""}</small>
+                <small>${task.category}</small>
+                <span class="badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
+            </div>
+
+            <div class="card-back">
+                <strong class="done-text">${task.title}</strong>
+                <small>${formatDate(task.date)} ${task.time || ""}</small>
+            </div>
+        </div>
+
+        <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
+        `;
+
+        list.appendChild(div);
+    });
 }
 
-// COMPLETAR
+/* ---------------- COMPLETAR ---------------- */
+
 function toggleComplete(id) {
-    tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+    tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
     localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    const task = tasks.find(t => t.id === id);
+
+    if (task.completed) {
+        launchConfetti();
+        playSound();
+    }
+
     renderTasks();
     renderCalendar();
 }
 
-// ELIMINAR
+/* ---------------- ELIMINAR ---------------- */
+
 function deleteTask(id) {
-    tasks = tasks.filter(t => t.id !== id);
+    tasks = tasks.filter(task => task.id !== id);
     localStorage.setItem("tasks", JSON.stringify(tasks));
     renderTasks();
     renderCalendar();
 }
 
-// CALENDARIO
+/* ---------------- CALENDARIO ---------------- */
+
 function renderCalendar() {
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
@@ -143,46 +198,68 @@ function renderCalendar() {
         dayDiv.className = "day";
         dayDiv.innerHTML = `<strong>${d}</strong>`;
 
-        const dayTasks = tasks.filter(t => t.date === fullDate);
-        if (dayTasks.length) {
-            dayDiv.style.border = "2px solid #e10600";
-            let tasksHTML = "";
-            dayTasks.slice(0, 3).forEach(t => { tasksHTML += `<div class="day-tasks">${t.title}</div>`; });
-            dayDiv.innerHTML += tasksHTML;
-        }
+        tasks.filter(t => t.date === fullDate).forEach(t => {
+            dayDiv.innerHTML += `<div style="font-size:11px">${t.title}</div>`;
+        });
 
-        dayDiv.onclick = () => {
-            if (dayTasks.length) showCalendarZoom(fullDate);
-        };
-
+        dayDiv.onclick = () => showModal(fullDate);
         calendar.appendChild(dayDiv);
     }
 }
 
-// ZOOM CALENDARIO
-function showCalendarZoom(date) {
-    document.getElementById("calendarDayDetail").style.display = "flex";
-    document.getElementById("calendarTaskTitle").textContent = "Tareas del " + date;
-    renderCalendarTasks(date);
-}
+/* ---------------- MODAL ---------------- */
 
-function closeCalendarZoom() {
-    document.getElementById("calendarDayDetail").style.display = "none";
-}
+function showModal(date) {
+    document.getElementById("calendarModal").style.display = "flex";
+    document.getElementById("modalTitle").textContent = "Tareas del " + formatDate(date);
 
-function renderCalendarTasks(date) {
-    const list = document.getElementById("calendarTaskList");
-    list.innerHTML = "";
-    tasks.filter(t => t.date === date).forEach(t => {
+    const modalTasks = document.getElementById("modalTasks");
+    modalTasks.innerHTML = "";
+
+    tasks.filter(t => t.date === date).forEach(task => {
         const div = document.createElement("div");
-        div.className = "calendar-task";
-        div.innerHTML = `<strong>${t.title}</strong> <small>${t.time ? t.time : ""} | ${t.category}</small>`;
-        list.appendChild(div);
+        div.className = "task-card";
+        div.innerHTML = `
+            <strong>${task.title}</strong>
+            <small>${task.time || ""}</small>
+            <small>${task.category}</small>
+        `;
+        modalTasks.appendChild(div);
     });
 }
 
-// CAMBIAR MES
+function closeModal() {
+    document.getElementById("calendarModal").style.display = "none";
+}
+
 function changeMonth(step) {
     currentDate.setMonth(currentDate.getMonth() + step);
     renderCalendar();
+}
+
+/* ---------------- EFECTOS ---------------- */
+
+function launchConfetti() {
+    for (let i = 0; i < 15; i++) {
+        let conf = document.createElement("div");
+        conf.className = "confetti";
+        conf.style.left = Math.random() * 100 + "vw";
+        conf.style.backgroundColor = `hsl(${Math.random() * 360},70%,50%)`;
+        conf.style.animationDuration = (Math.random() * 2 + 1) + "s";
+        document.body.appendChild(conf);
+        setTimeout(() => conf.remove(), 3000);
+    }
+}
+
+function playSound() {
+    let audio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+    audio.volume = 0.4;
+    audio.play();
+}
+
+/* ---------------- FORMATEAR FECHA ---------------- */
+
+function formatDate(dateString) {
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
 }
