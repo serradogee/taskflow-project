@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ---------------- VISTAS ---------------- */
-
 function showView(id) {
     document.getElementById("homeView").style.display = "none";
     document.getElementById("tasksView").style.display = "none";
@@ -23,7 +22,6 @@ function showView(id) {
 }
 
 /* ---------------- CREAR TAREA ---------------- */
-
 function addTask() {
     const title = document.getElementById("taskTitle").value.trim();
     const date = document.getElementById("taskDate").value;
@@ -47,11 +45,7 @@ function addTask() {
     });
 
     // Ordenar por fecha y hora
-    tasks.sort((a, b) => {
-        const da = a.date + (a.time || "23:59");
-        const db = b.date + (b.time || "23:59");
-        return da.localeCompare(db);
-    });
+    tasks.sort((a, b) => (a.date + (a.time || "23:59")).localeCompare(b.date + (b.time || "23:59")));
 
     localStorage.setItem("tasks", JSON.stringify(tasks));
 
@@ -61,45 +55,24 @@ function addTask() {
 
     renderTasks();
     renderCalendar();
-
     showTaskCreatedMessage();
 }
 
 /* ---------------- MENSAJE TEMPORAL ---------------- */
-
 function showTaskCreatedMessage() {
     const msg = document.createElement("div");
     msg.textContent = "✅ Tarea creada";
-    msg.style.position = "fixed";
-    msg.style.top = "20px";
-    msg.style.right = "20px";
-    msg.style.background = "#16a34a";
-    msg.style.color = "white";
-    msg.style.padding = "12px 20px";
-    msg.style.borderRadius = "12px";
-    msg.style.boxShadow = "0 5px 20px rgba(0,0,0,0.1)";
-    msg.style.zIndex = 1000;
-    msg.style.fontWeight = "600";
-    msg.style.opacity = "0";
-    msg.style.transition = "opacity 0.4s, transform 0.4s";
-    msg.style.transform = "translateY(-20px)";
-
+    msg.className = "fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg font-semibold opacity-0 transition-all transform -translate-y-5";
     document.body.appendChild(msg);
 
+    setTimeout(() => msg.classList.remove("opacity-0", "-translate-y-5"), 10);
     setTimeout(() => {
-        msg.style.opacity = "1";
-        msg.style.transform = "translateY(0)";
-    }, 10);
-
-    setTimeout(() => {
-        msg.style.opacity = "0";
-        msg.style.transform = "translateY(-20px)";
+        msg.classList.add("opacity-0", "-translate-y-5");
         setTimeout(() => msg.remove(), 400);
     }, 2000);
 }
 
 /* ---------------- RENDER TAREAS ---------------- */
-
 function renderTasks() {
     const list = document.getElementById("taskList");
     list.innerHTML = "";
@@ -115,34 +88,29 @@ function renderTasks() {
         .filter(t => t.category.toLowerCase().includes(category))
         .filter(t => priority === "all" || t.priority === priority);
 
-    // Separar pendientes y completadas
-    let pending = filtered.filter(t => !t.completed);
-    let completed = filtered.filter(t => t.completed);
-
-    [...pending, ...completed].forEach(task => {
+    filtered.forEach(task => {
         const div = document.createElement("div");
-        div.className = "task-card";
-        if (task.completed) div.classList.add("flipped");
+        div.className = "task-card relative";
+
+        // Colores según prioridad
+        let priorityColor = '';
+        if (task.priority === 'Alta') priorityColor = 'bg-red-600';
+        else if (task.priority === 'Media') priorityColor = 'bg-yellow-500';
+        else if (task.priority === 'Baja') priorityColor = 'bg-green-600';
 
         div.innerHTML = `
         <div class="card-inner">
-            <div class="card-front">
-                <div class="task-top">
-                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})">
-                    <strong class="${task.completed ? 'done-text' : ''}">${task.title}</strong>
+            <div class="card-front bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})" class="h-5 w-5 cursor-pointer">
+                    <strong class="${task.completed ? 'line-through opacity-60' : ''} truncate">${task.title}</strong>
                 </div>
                 <small>${formatDate(task.date)} ${task.time || ""}</small>
                 <small>${task.category}</small>
-                <span class="badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
-            </div>
-
-            <div class="card-back">
-                <strong class="done-text">${task.title}</strong>
-                <small>${formatDate(task.date)} ${task.time || ""}</small>
+                <span class="px-3 py-1 rounded-full text-white text-sm ${priorityColor}">${task.priority}</span>
             </div>
         </div>
-
-        <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
+        <button class="delete-btn absolute bottom-2 right-2 text-red-600 hover:scale-125 transition-transform" onclick="deleteTask(${task.id})">✕</button>
         `;
 
         list.appendChild(div);
@@ -150,13 +118,11 @@ function renderTasks() {
 }
 
 /* ---------------- COMPLETAR ---------------- */
-
 function toggleComplete(id) {
     tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
     localStorage.setItem("tasks", JSON.stringify(tasks));
 
     const task = tasks.find(t => t.id === id);
-
     if (task.completed) {
         launchConfetti();
         playSound();
@@ -167,7 +133,6 @@ function toggleComplete(id) {
 }
 
 /* ---------------- ELIMINAR ---------------- */
-
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -176,14 +141,12 @@ function deleteTask(id) {
 }
 
 /* ---------------- CALENDARIO ---------------- */
-
 function renderCalendar() {
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
-
     document.getElementById("monthYear").textContent =
         currentDate.toLocaleString("es", { month: "long", year: "numeric" });
 
@@ -195,11 +158,12 @@ function renderCalendar() {
     for (let d = 1; d <= daysInMonth; d++) {
         const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayDiv = document.createElement("div");
-        dayDiv.className = "day";
-        dayDiv.innerHTML = `<strong>${d}</strong>`;
+
+        dayDiv.className = "day bg-white dark:bg-gray-700 rounded-lg p-3 shadow-md cursor-pointer min-h-[80px] flex flex-col items-start gap-1";
+        dayDiv.innerHTML = `<strong class="text-sm font-semibold">${d}</strong>`;
 
         tasks.filter(t => t.date === fullDate).forEach(t => {
-            dayDiv.innerHTML += `<div style="font-size:11px">${t.title}</div>`;
+            dayDiv.innerHTML += `<div class="text-xs truncate">${t.title}</div>`;
         });
 
         dayDiv.onclick = () => showModal(fullDate);
@@ -208,7 +172,6 @@ function renderCalendar() {
 }
 
 /* ---------------- MODAL ---------------- */
-
 function showModal(date) {
     document.getElementById("calendarModal").style.display = "flex";
     document.getElementById("modalTitle").textContent = "Tareas del " + formatDate(date);
@@ -218,9 +181,9 @@ function showModal(date) {
 
     tasks.filter(t => t.date === date).forEach(task => {
         const div = document.createElement("div");
-        div.className = "task-card";
+        div.className = "task-card p-2 bg-white dark:bg-gray-800 rounded shadow mb-2";
         div.innerHTML = `
-            <strong>${task.title}</strong>
+            <strong class="${task.completed ? 'line-through opacity-60' : ''}">${task.title}</strong>
             <small>${task.time || ""}</small>
             <small>${task.category}</small>
         `;
@@ -238,7 +201,6 @@ function changeMonth(step) {
 }
 
 /* ---------------- EFECTOS ---------------- */
-
 function launchConfetti() {
     for (let i = 0; i < 15; i++) {
         let conf = document.createElement("div");
@@ -252,14 +214,18 @@ function launchConfetti() {
 }
 
 function playSound() {
-    let audio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+    const audio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
     audio.volume = 0.4;
     audio.play();
 }
 
 /* ---------------- FORMATEAR FECHA ---------------- */
-
 function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
 }
+
+/* ---------------- MODO OSCURO ---------------- */
+document.getElementById('darkToggle').addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+});

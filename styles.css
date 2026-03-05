@@ -1,172 +1,44 @@
-/* =========================
-   ESTILOS GENERALES
-========================= */
+/*/* ========================= GENERAL ========================= */
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background: #f4f6f9;
-    color: #111;
 }
 
-/* =========================
-   HEADER
-========================= */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 25px;
-    background: white;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-}
-
-    header h1 {
-        font-size: 22px;
-        cursor: pointer;
-    }
-
-nav {
-    display: flex;
-    gap: 25px;
-}
-
-.nav-btn {
-    background: none;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    color: #000;
-    cursor: pointer;
-    position: relative;
-    letter-spacing: 0.5px;
-}
-
-    .nav-btn::after {
-        content: "";
-        position: absolute;
-        bottom: -6px;
-        left: 0;
-        width: 0%;
-        height: 2px;
-        background: #e10600;
-        transition: 0.3s;
-    }
-
-    .nav-btn:hover::after,
-    .nav-btn.active::after {
-        width: 100%;
-    }
-
-/* =========================
-   MAIN
-========================= */
-main {
-    padding: 30px;
-    max-width: 900px;
-    margin: auto;
-}
-
-/* =========================
-   CARD FORMULARIO
-========================= */
+/* CARD */
 .card {
-    background: white;
-    padding: 20px;
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-input, select {
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-}
-
-button {
-    padding: 12px;
-    border: none;
-    border-radius: 12px;
-    background: #111;
-    color: white;
-    cursor: pointer;
-}
-
-    button:hover {
-        opacity: 0.9;
-    }
-
-/* =========================
-   FILTROS
-========================= */
-.filter-line {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-/* =========================
-   GRID TAREAS
-========================= */
-.task-grid {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 15px;
-}
-
-/* =========================
-   TARJETA 3D CUADRADA
-========================= */
-.task-card {
-    position: relative;
-    perspective: 1200px;
-    height: 150px; /* altura similar al ancho para cuadrado */
     border-radius: 16px;
-    overflow: visible;
-}
-/* CENTRAR Y REDUCIR NUEVA TAREA */
-#homeView {
-    display: flex;
-    justify-content: center; /* centra horizontalmente */
-    align-items: center; /* centra verticalmente */
-    flex-direction: column;
-    min-height: 60vh; /* altura mínima, ajustable */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
-    #homeView .card {
-        width: 50%; /* la mitad del contenedor */
-        max-width: 400px; /* ancho máximo para pantallas grandes */
-        min-width: 250px; /* ancho mínimo para pantallas pequeñas */
-    }
-.card-inner {
+/* TASK CARD */
+.task-card {
+    perspective: 1200px;
+    height: 150px;
     position: relative;
+}
+
+.card-inner {
+    transition: transform 0.7s;
+    transform-style: preserve-3d;
     width: 100%;
     height: 100%;
-    transition: transform 0.7s cubic-bezier(.4,2,.3,1);
-    transform-style: preserve-3d;
+    position: relative;
 }
 
 .task-card.flipped .card-inner {
     transform: rotateY(180deg);
 }
 
-.card-front,
-.card-back {
+.card-front, .card-back {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    background: white;
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    padding: 8px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     gap: 4px;
+    padding: 8px;
     overflow: auto;
 }
 
@@ -176,60 +48,20 @@ button {
     opacity: 0.85;
 }
 
-    .card-back strong {
-        font-size: 14px;
-        line-height: 1.2;
-        word-wrap: break-word;
-    }
-
-.card-front strong {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .done-text {
     text-decoration: line-through;
     opacity: 0.6;
 }
 
-.task-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* =========================
-   BADGES
-========================= */
-.badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    color: white;
-    font-size: 12px;
-    width: fit-content;
-}
-
-.priority-alta {
-    background: #e10600;
-}
-
-.priority-baja {
-    background: #16a34a;
-}
-
-/* =========================
-   BOTÓN ELIMINAR
-========================= */
+/* DELETE BUTTON */
 .delete-btn {
     position: absolute;
-    bottom: 8px;
-    right: 12px;
+    bottom: 4px;
+    right: 4px;
     background: none;
     border: none;
     color: #e10600;
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
     opacity: 0.7;
     transition: 0.2s;
@@ -240,57 +72,7 @@ button {
         transform: scale(1.2);
     }
 
-/* =========================
-   CALENDARIO
-========================= */
-#calendar {
-    display: grid;
-    grid-template-columns: repeat(7,1fr);
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.day {
-    background: white;
-    padding: 15px;
-    border-radius: 15px;
-    min-height: 120px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    cursor: pointer;
-}
-
-    .day strong {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-/* =========================
-   MODAL
-========================= */
-.calendar-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.calendar-modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    width: 500px;
-    max-height: 80%;
-    overflow-y: auto;
-}
-
-/* =========================
-   CONFETTI
-========================= */
+/* CONFETTI */
 .confetti {
     position: fixed;
     top: -10px;
@@ -308,30 +90,7 @@ button {
     }
 }
 
-/* =========================
-   ANIMACIÓN POP
-========================= */
-.task-card.flipped {
-    animation: pop 0.3s ease;
-}
-
-@keyframes pop {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 @media(max-width:700px) {
     .task-grid {
         grid-template-columns: 1fr;
@@ -340,4 +99,12 @@ button {
     .calendar-modal-content {
         width: 90%;
     }
+    /* CSS personalizado para centrar siempre la sección de nueva tarea */
+    #homeView {
+        @apply flex flex-col justify-center items-center min-h-screen;
+    }
+
+        #homeView .card {
+            @apply w-1/2 max-w-md min-w-[250px];
+        }
 }
