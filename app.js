@@ -1,6 +1,13 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
 
+// Preferencia de tema
+const rootElement = document.documentElement;
+const storedTheme = localStorage.getItem("theme");
+if (storedTheme === "dark") {
+    rootElement.classList.add("dark");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
     renderCalendar();
@@ -8,11 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ---------------- VISTAS ---------------- */
 function showView(id) {
-    document.getElementById("homeView").style.display = "none";
-    document.getElementById("tasksView").style.display = "none";
-    document.getElementById("calendarView").style.display = "none";
+    const views = ["homeView", "tasksView", "calendarView"];
 
-    document.getElementById(id).style.display = "block";
+    views.forEach(viewId => {
+        const el = document.getElementById(viewId);
+        if (el) {
+            el.classList.add("hidden");
+        }
+    });
+
+    const activeView = document.getElementById(id);
+    if (activeView) {
+        activeView.classList.remove("hidden");
+    }
 
     document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
 
@@ -173,7 +188,8 @@ function renderCalendar() {
 
 /* ---------------- MODAL ---------------- */
 function showModal(date) {
-    document.getElementById("calendarModal").style.display = "flex";
+    const modal = document.getElementById("calendarModal");
+    modal.style.display = "flex";
     document.getElementById("modalTitle").textContent = "Tareas del " + formatDate(date);
 
     const modalTasks = document.getElementById("modalTasks");
@@ -195,6 +211,19 @@ function closeModal() {
     document.getElementById("calendarModal").style.display = "none";
 }
 
+// Cerrar modal al pulsar ESC y al hacer click fuera
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeModal();
+    }
+});
+
+document.getElementById("calendarModal").addEventListener("click", (e) => {
+    if (e.target.id === "calendarModal") {
+        closeModal();
+    }
+});
+
 function changeMonth(step) {
     currentDate.setMonth(currentDate.getMonth() + step);
     renderCalendar();
@@ -213,10 +242,12 @@ function launchConfetti() {
     }
 }
 
+const completeAudio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+completeAudio.volume = 0.4;
+
 function playSound() {
-    const audio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
-    audio.volume = 0.4;
-    audio.play();
+    completeAudio.currentTime = 0;
+    completeAudio.play();
 }
 
 /* ---------------- FORMATEAR FECHA ---------------- */
@@ -226,6 +257,7 @@ function formatDate(dateString) {
 }
 
 /* ---------------- MODO OSCURO ---------------- */
-document.getElementById('darkToggle').addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
+document.getElementById("darkToggle").addEventListener("click", () => {
+    rootElement.classList.toggle("dark");
+    localStorage.setItem("theme", rootElement.classList.contains("dark") ? "dark" : "light");
 });

@@ -1,4 +1,4 @@
-/*/* ========================= GENERAL ========================= */
+/* ========================= GENERAL ========================= */
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -67,10 +67,10 @@ body {
     transition: 0.2s;
 }
 
-    .delete-btn:hover {
-        opacity: 1;
-        transform: scale(1.2);
-    }
+.delete-btn:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
 
 /* CONFETTI */
 .confetti {
@@ -90,8 +90,18 @@ body {
     }
 }
 
+/* HOVER TARJETA */
+.task-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
 /* RESPONSIVE */
-@media(max-width:700px) {
+@media (max-width: 700px) {
     .task-grid {
         grid-template-columns: 1fr;
     }
@@ -99,12 +109,4 @@ body {
     .calendar-modal-content {
         width: 90%;
     }
-    /* CSS personalizado para centrar siempre la sección de nueva tarea */
-    #homeView {
-        @apply flex flex-col justify-center items-center min-h-screen;
-    }
-
-        #homeView .card {
-            @apply w-1/2 max-w-md min-w-[250px];
-        }
 }
