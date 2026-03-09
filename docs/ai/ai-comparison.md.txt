@@ -1,0 +1,93 @@
+# Comparación de asistentes de IA: ChatGPT vs Claude
+
+## 1. Explicación de conceptos técnicos
+
+Se pidieron a ambos asistentes que expliquen tres conceptos de JavaScript: **closures**, **event loop** y **hoisting**.
+
+### ChatGPT
+
+- **Closures:** Explica que son funciones que recuerdan el entorno donde fueron creadas, incluyendo variables externas. Da un ejemplo con función que retorna otra función.
+- **Event Loop:** Describe cómo JavaScript maneja la cola de tareas y callbacks, mencionando el stack de ejecución y la cola de eventos.
+- **Hoisting:** Explica que las declaraciones de variables y funciones se elevan al inicio del scope, con ejemplos usando `var` y `let`.
+
+### Claude
+
+- **Closures:** También explica la captura de variables externas y el alcance léxico, con ejemplos claros de uso en funciones anidadas.
+- **Event Loop:** Describe la ejecución de tareas asíncronas y microtasks/promises, con ejemplos más visuales de flujo.
+- **Hoisting:** Presenta ejemplos de elevación de funciones y variables, con advertencias sobre diferencias entre `var`, `let` y `const`.
+
+**Comparación de claridad y profundidad:**  
+
+| Concepto      | ChatGPT | Claude |
+|---------------|---------|--------|
+| Closures      | Claro, ejemplo sencillo | Muy claro, ejemplo visual |
+| Event Loop    | Detallado, explica stack y cola | Más didáctico, visual del flujo |
+| Hoisting      | Preciso, ejemplos básicos | Explica diferencias entre var/let/const |
+
+---
+
+## 2. Detección de errores en funciones JavaScript
+
+Se escribieron tres funciones con errores intencionales y se pidió a cada asistente que detectara y explicara el bug.
+
+### Función 1
+
+```javascript
+function suma(a, b) {
+  return a - b; // Error: debería ser a + b
+}
+
+
+function saludar(nombre) {
+  console.log("Hola " + nombre;
+} // Error: falta un paréntesis de cierre
+
+
+
+let total = 10;
+function actualizarTotal(valor) {
+  total = total + val; // Error: variable incorrecta "val"
+}
+Resultados:
+
+ChatGPT: Detecta los errores y explica claramente la causa.
+
+Claude: También detecta los errores, añade sugerencias de buenas prácticas.
+3. Generación de funciones a partir de descripción natural
+
+Se describieron tres funciones en lenguaje natural:
+
+Función que invierte un string.
+
+Función que devuelve números pares de un array.
+
+Función que calcula el factorial de un número.
+
+Resultados:
+
+ChatGPT: Genera código funcional y comentado.
+
+Claude: También genera código funcional, a veces con optimizaciones adicionales.
+
+Comparación de calidad del código:
+
+Función	ChatGPT	Claude
+Invertir string	Correcta, simple	Correcta, con método alternativo
+Filtrar pares	Correcta	Correcta, más compacta
+Factorial	Correcta	Correcta, incluye control de errores
+Conclusiones
+
+Ambos asistentes son útiles para explicar conceptos y detectar errores.
+
+ChatGPT tiende a dar ejemplos claros y sencillos.
+
+Claude ofrece explicaciones más visuales y didácticas, con sugerencias de buenas prácticas.
+
+Para generación de código, ambos producen código funcional, aunque Claude a veces propone soluciones más optimizadas.
+Prompts usados:
+
+"Explica en JavaScript qué son closures/event loop/hoisting con ejemplos."
+
+"Encuentra y explica el error en la siguiente función: …"
+
+"Genera una función que haga … en JavaScript."

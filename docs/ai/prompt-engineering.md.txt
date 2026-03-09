@@ -1,0 +1,5 @@
+# Comparación de asistentes de IA
+
+En este documento se comparan diferentes asistentes de inteligencia artificial utilizados durante el desarrollo del proyecto TaskFlow, como ChatGPT y Claude.
+
+El objetivo es analizar cómo estas herramientas ayudan en tareas como generar código, solucionar errores y crear documentación.
