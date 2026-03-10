@@ -1,0 +1,57 @@
+# Primer contacto con Cursor
+
+En este documento se describe la experiencia de uso de Cursor con el proyecto TaskFlow, incluyendo exploración de la interfaz, autocompletado, chat contextual, edición inline y Composer.
+
+---
+
+## 1. Instalación y apertura del proyecto
+
+- Se instaló Cursor siguiendo las instrucciones oficiales.  
+- Se abrió el proyecto **TaskFlow** dentro de Cursor, cargando automáticamente los archivos HTML, CSS y JS.
+
+---
+
+## 2. Exploración de la interfaz
+
+Elementos explorados:
+
+- **Explorador de archivos:** Permite navegar rápidamente entre todos los archivos del proyecto.  
+- **Terminal integrada:** Se puede ejecutar `npm`, `git` y otros comandos directamente desde Cursor.  
+- **Chat contextual:** Permite hacer preguntas sobre el código actual y recibir explicaciones.  
+- **Herramientas de edición:** Incluyen autocompletado, edición inline y Composer para modificar varias partes del proyecto simultáneamente.
+
+---
+
+## 3. Pruebas de autocompletado
+
+- Se escribió un comentario describiendo una función, por ejemplo:
+
+```javascript
+// Función que calcula el promedio de un array de números
+Se modificó directamente una función existente usando la edición inline de Cursor para cambiar su lógica sin salir del archivo ni duplicar código.
+
+Esto ayudó a corregir un bug en la función de cálculo de notas de TaskFlow.
+Autocompletar función	Ctrl + Space
+
+Ejecutar chat contextual	Ctrl + Shift + C
+Editar inline	Ctrl + Shift + I
+Abrir Composer	Ctrl + Shift + P
+
+
+Mejoras en mi Proyecto 
+Mejora aplicada en CSS
+styles.css:
+Corregí el comentario inicial y el bloque de .delete-btn:hover para que quede limpio y legible.
+Eliminé el uso de @apply (no funciona con Tailwind por CDN) y dejé solo CSS estándar.
+Añadí un hover suave en las tarjetas de tarea (.task-card) con ligera elevación y más sombra.
+Ajusté el media query (@media (max-width: 700px)) y el ancho del modal en móvil.
+En app.js he modificado showView para que:
+
+En vez de usar style.display, añada/quite la clase hidden de Tailwind en las secciones:
+Oculta siempre homeView, tasksView y calendarView añadiendo hidden.
+Muestra solo la vista seleccionada quitándole hidden.
+De esta forma, homeView mantiene su display: flex y continúa centrando el contenido aunque cambies entre vistas.
+Estructura HTML más correcta: ahora los <script> de Tailwind y su configuración están dentro de <head>, no entre <html> y <head>, lo que hace el documento más válido.
+Mejor SEO y accesibilidad básica: añadí un <meta name="description"> descriptivo para la página.
+Código más organizado: separé claramente en <head> la fuente de Google, el CDN de Tailwind con su configuración y tu styles.css, con comentarios para que sea más fácil de mantener.
+mejoras de código 
