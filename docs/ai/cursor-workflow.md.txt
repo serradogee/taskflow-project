@@ -54,4 +54,4 @@ De esta forma, homeView mantiene su display: flex y continúa centrando el conte
 Estructura HTML más correcta: ahora los <script> de Tailwind y su configuración están dentro de <head>, no entre <html> y <head>, lo que hace el documento más válido.
 Mejor SEO y accesibilidad básica: añadí un <meta name="description"> descriptivo para la página.
 Código más organizado: separé claramente en <head> la fuente de Google, el CDN de Tailwind con su configuración y tu styles.css, con comentarios para que sea más fácil de mantener.
-mejoras de código 
+mejoras de código  

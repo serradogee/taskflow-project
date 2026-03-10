@@ -1,5 +1,132 @@
-# Comparación de asistentes de IA
+# Prompt Engineering aplicado al desarrollo
 
-En este documento se comparan diferentes asistentes de inteligencia artificial utilizados durante el desarrollo del proyecto TaskFlow, como ChatGPT y Claude.
+En este documento se muestran diferentes técnicas de prompt engineering utilizadas para mejorar el desarrollo del proyecto TaskFlow. Se experimentó con roles, ejemplos, razonamiento paso a paso y restricciones para obtener mejores respuestas de la inteligencia artificial.
 
-El objetivo es analizar cómo estas herramientas ayudan en tareas como generar código, solucionar errores y crear documentación.
+---
+
+## Prompt 1 – Definir un rol
+
+Prompt:
+
+Actúa como un desarrollador senior de JavaScript y revisa esta función. Sugiere mejoras de rendimiento y legibilidad.
+
+Por qué funciona:
+
+Definir un rol específico ayuda a que la IA genere respuestas más especializadas y con un enfoque profesional.
+
+---
+
+## Prompt 2 – Refactorización de código
+
+Prompt:
+
+Refactoriza esta función JavaScript para que sea más clara, eficiente y fácil de mantener. Mejora nombres de variables y añade comentarios.
+
+Por qué funciona:
+
+Este prompt da instrucciones claras sobre lo que se espera de la respuesta, lo que produce código más limpio y estructurado.
+
+---
+
+## Prompt 3 – Generación de documentación
+
+Prompt:
+
+Genera comentarios JSDoc para esta función explicando parámetros, retorno y propósito.
+
+Por qué funciona:
+
+Indicar el formato de documentación deseado permite que la IA genere comentarios consistentes y útiles.
+
+---
+
+## Prompt 4 – Few-shot prompting
+
+Prompt:
+
+Ejemplo:
+
+Entrada: sumar dos números  
+Salida:
+
+function add(a,b){
+ return a+b
+}
+
+Ahora genera una función que multiplique dos números.
+
+Por qué funciona:
+
+Dar ejemplos ayuda a la IA a entender mejor el patrón de respuesta esperado.
+
+---
+
+## Prompt 5 – Razonamiento paso a paso
+
+Prompt:
+
+Explica paso a paso cómo funciona esta función JavaScript y qué hace cada línea.
+
+Por qué funciona:
+
+Pedir razonamiento paso a paso produce explicaciones más detalladas y fáciles de entender.
+
+---
+
+## Prompt 6 – Detección de errores
+
+Prompt:
+
+Encuentra posibles bugs o malas prácticas en esta función JavaScript y explica cómo solucionarlos.
+
+Por qué funciona:
+
+La IA analiza el código de forma crítica y ayuda a detectar errores que pueden pasar desapercibidos.
+
+---
+
+## Prompt 7 – Restricciones en la respuesta
+
+Prompt:
+
+Genera una función JavaScript que valide un formulario. Usa menos de 20 líneas de código y utiliza nombres de variables claros.
+
+Por qué funciona:
+
+Las restricciones obligan a la IA a producir respuestas más concretas y controladas.
+
+---
+
+## Prompt 8 – Mejora de estructura
+
+Prompt:
+
+Analiza este archivo JavaScript y sugiere cómo dividirlo en varios módulos para mejorar la organización del proyecto.
+
+Por qué funciona:
+
+Este prompt permite obtener recomendaciones de arquitectura de software.
+
+---
+
+## Prompt 9 – Generación de código con explicación
+
+Prompt:
+
+Genera una función para guardar tareas en localStorage y explica brevemente cómo funciona.
+
+Por qué funciona:
+
+Combinar generación de código con explicación ayuda a entender mejor la implementación.
+
+---
+
+## Prompt 10 – Optimización de código
+
+Prompt:
+
+Optimiza esta función JavaScript manteniendo la misma funcionalidad pero reduciendo complejidad y mejorando legibilidad.
+
+Por qué funciona:
+
+Este prompt enfoca a la IA en mejorar la calidad del código sin cambiar su comportamiento.
