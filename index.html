@@ -35,12 +35,15 @@
 
     <header class="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md">
         <h1 class="text-2xl font-bold cursor-pointer" onclick="showView('homeView')">NOTEYOU</h1>
-        <nav class="flex gap-4">
-            <button class="nav-btn" onclick="showView('homeView')">Inicio</button>
-            <button class="nav-btn" onclick="showView('tasksView')">Tareas</button>
-            <button class="nav-btn" onclick="showView('calendarView')">Calendario</button>
+        <nav class="flex gap-4" aria-label="Navegación principal">
+            <button type="button" class="nav-btn" onclick="showView('homeView')">Inicio</button>
+            <button type="button" class="nav-btn" onclick="showView('tasksView')">Tareas</button>
+            <button type="button" class="nav-btn" onclick="showView('calendarView')">Calendario</button>
         </nav>
-        <button id="darkToggle" class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">Modo Oscuro</button>
+        <button id="darkToggle" type="button" class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+            aria-pressed="false" aria-label="Cambiar modo de color">
+            Modo Oscuro
+        </button>
     </header>
 
     <main class="max-w-3xl mx-auto p-4">
@@ -50,16 +53,34 @@
             <h2 class="text-xl font-semibold mb-4">Nueva Tarea</h2>
 
             <div class="card w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex flex-col gap-3">
-                <input type="text" id="taskTitle" placeholder="¿Qué tienes que hacer?" class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
-                <input type="date" id="taskDate" class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
-                <input type="time" id="taskTime" class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
-                <input type="text" id="taskCategory" placeholder="Categoría libre" class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
-                <select id="taskPriority" class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                <label for="taskTitle" class="text-sm font-medium">Título de la tarea</label>
+                <input type="text" id="taskTitle" name="taskTitle" placeholder="¿Qué tienes que hacer?"
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <label for="taskDate" class="text-sm font-medium">Fecha</label>
+                <input type="date" id="taskDate" name="taskDate"
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <label for="taskTime" class="text-sm font-medium">Hora (opcional)</label>
+                <input type="time" id="taskTime" name="taskTime"
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <label for="taskCategory" class="text-sm font-medium">Categoría (opcional)</label>
+                <input type="text" id="taskCategory" name="taskCategory" placeholder="Trabajo, estudios, personal..."
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <label for="taskPriority" class="text-sm font-medium">Prioridad</label>
+                <select id="taskPriority" name="taskPriority"
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="Alta">Alta</option>
                     <option value="Media">Media</option>
                     <option value="Baja">Baja</option>
                 </select>
-                <button id="addBtn" onclick="addTask()" class="bg-primary text-white py-2 rounded-lg hover:bg-red-700 transition-colors duration-300">Crear Tarea</button>
+
+                <button id="addBtn" type="button" onclick="addTask()"
+                    class="bg-primary text-white py-2 rounded-lg hover:bg-red-700 transition-colors duration-300">
+                    Crear Tarea
+                </button>
             </div>
         </section>
 

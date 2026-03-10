@@ -8,12 +8,69 @@ if (storedTheme === "dark") {
     rootElement.classList.add("dark");
 }
 
+/**
+ * Guarda el array de tareas actual en localStorage.
+ */
+function persistTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+/**
+ * Ordena una lista de tareas por fecha y hora (ascendente).
+ * @param {Array<Object>} taskList - Lista de tareas a ordenar.
+ * @returns {Array<Object>} Lista ordenada.
+ */
+function sortTasksByDateTime(taskList) {
+    return [...taskList].sort((taskA, taskB) => {
+        const aKey = taskA.date + (taskA.time || "23:59");
+        const bKey = taskB.date + (taskB.time || "23:59");
+        return aKey.localeCompare(bKey);
+    });
+}
+
+/**
+ * Obtiene los filtros introducidos en el formulario de filtros de tareas.
+ * @returns {{title: string, date: string, category: string, priority: string}} Filtros normalizados.
+ */
+function getTaskFilters() {
+    const titleFilter = document.getElementById("filterName")?.value.toLowerCase() || "";
+    const dateFilter = document.getElementById("filterDay")?.value || "";
+    const categoryFilter = document.getElementById("filterCategory")?.value.toLowerCase() || "";
+    const priorityFilter = document.getElementById("filterPriority")?.value || "all";
+
+    return {
+        title: titleFilter,
+        date: dateFilter,
+        category: categoryFilter,
+        priority: priorityFilter
+    };
+}
+
+/**
+ * Aplica los filtros del listado de tareas sobre una lista dada.
+ * @param {Array<Object>} taskList - Lista de tareas de entrada.
+ * @param {{title: string, date: string, category: string, priority: string}} filters - Filtros a aplicar.
+ * @returns {Array<Object>} Lista filtrada.
+ */
+function applyTaskFilters(taskList, filters) {
+    return taskList
+        .filter(task => task.title.toLowerCase().includes(filters.title))
+        .filter(task => !filters.date || task.date === filters.date)
+        .filter(task => task.category.toLowerCase().includes(filters.category))
+        .filter(task => filters.priority === "all" || task.priority === filters.priority);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    tasks = sortTasksByDateTime(tasks);
     renderTasks();
     renderCalendar();
 });
 
 /* ---------------- VISTAS ---------------- */
+/**
+ * Muestra la vista indicada y oculta el resto.
+ * @param {string} id - Identificador de la sección a mostrar.
+ */
 function showView(id) {
     const views = ["homeView", "tasksView", "calendarView"];
 
@@ -37,19 +94,49 @@ function showView(id) {
 }
 
 /* ---------------- CREAR TAREA ---------------- */
+/**
+ * Valida los datos del formulario y crea una nueva tarea.
+ */
 function addTask() {
-    const title = document.getElementById("taskTitle").value.trim();
-    const date = document.getElementById("taskDate").value;
-    const time = document.getElementById("taskTime").value;
-    const category = document.getElementById("taskCategory").value.trim() || "Sin categoría";
-    const priority = document.getElementById("taskPriority").value;
+    const titleInput = document.getElementById("taskTitle");
+    const dateInput = document.getElementById("taskDate");
+    const timeInput = document.getElementById("taskTime");
+    const categoryInput = document.getElementById("taskCategory");
+    const prioritySelect = document.getElementById("taskPriority");
 
+    const title = titleInput.value.trim();
+    const date = dateInput.value;
+    const time = timeInput.value;
+    const category = categoryInput.value.trim() || "Sin categoría";
+    const priority = prioritySelect.value;
+
+    // Validación básica de campos obligatorios
     if (!title || !date) {
-        alert("Debes poner título y fecha");
+        alert("Debes indicar al menos un título y una fecha.");
         return;
     }
 
-    tasks.push({
+    // Validación de longitud del título
+    if (title.length < 3) {
+        alert("El título debe tener al menos 3 caracteres.");
+        return;
+    }
+
+    if (title.length > 100) {
+        alert("El título es demasiado largo (máximo 100 caracteres).");
+        return;
+    }
+
+    // Validación de fecha en el pasado
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    if (selectedDate < today) {
+        alert("La fecha no puede estar en el pasado.");
+        return;
+    }
+
+    const newTask = {
         id: Date.now(),
         title,
         date,
@@ -57,16 +144,14 @@ function addTask() {
         category,
         priority,
         completed: false
-    });
+    };
 
-    // Ordenar por fecha y hora
-    tasks.sort((a, b) => (a.date + (a.time || "23:59")).localeCompare(b.date + (b.time || "23:59")));
+    tasks = sortTasksByDateTime([...tasks, newTask]);
+    persistTasks();
 
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-
-    document.getElementById("taskTitle").value = "";
-    document.getElementById("taskTime").value = "";
-    document.getElementById("taskCategory").value = "";
+    titleInput.value = "";
+    timeInput.value = "";
+    categoryInput.value = "";
 
     renderTasks();
     renderCalendar();
@@ -74,6 +159,9 @@ function addTask() {
 }
 
 /* ---------------- MENSAJE TEMPORAL ---------------- */
+/**
+ * Muestra un mensaje flotante indicando que la tarea se ha creado correctamente.
+ */
 function showTaskCreatedMessage() {
     const msg = document.createElement("div");
     msg.textContent = "✅ Tarea creada";
@@ -88,22 +176,17 @@ function showTaskCreatedMessage() {
 }
 
 /* ---------------- RENDER TAREAS ---------------- */
+/**
+ * Pinta en pantalla la lista de tareas aplicando los filtros activos.
+ */
 function renderTasks() {
     const list = document.getElementById("taskList");
     list.innerHTML = "";
 
-    const name = document.getElementById("filterName").value.toLowerCase();
-    const day = document.getElementById("filterDay").value;
-    const category = document.getElementById("filterCategory").value.toLowerCase();
-    const priority = document.getElementById("filterPriority").value;
+    const filters = getTaskFilters();
+    const filteredTasks = applyTaskFilters(tasks, filters);
 
-    let filtered = tasks
-        .filter(t => t.title.toLowerCase().includes(name))
-        .filter(t => !day || t.date === day)
-        .filter(t => t.category.toLowerCase().includes(category))
-        .filter(t => priority === "all" || t.priority === priority);
-
-    filtered.forEach(task => {
+    filteredTasks.forEach(task => {
         const div = document.createElement("div");
         div.className = "task-card relative";
 
@@ -133,9 +216,13 @@ function renderTasks() {
 }
 
 /* ---------------- COMPLETAR ---------------- */
+/**
+ * Marca o desmarca una tarea como completada.
+ * @param {number} id - Identificador único de la tarea.
+ */
 function toggleComplete(id) {
     tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    persistTasks();
 
     const task = tasks.find(t => t.id === id);
     if (task.completed) {
@@ -148,14 +235,21 @@ function toggleComplete(id) {
 }
 
 /* ---------------- ELIMINAR ---------------- */
+/**
+ * Elimina una tarea por id.
+ * @param {number} id - Identificador único de la tarea.
+ */
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    persistTasks();
     renderTasks();
     renderCalendar();
 }
 
 /* ---------------- CALENDARIO ---------------- */
+/**
+ * Dibuja el calendario mensual con las tareas en sus días correspondientes.
+ */
 function renderCalendar() {
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
@@ -187,6 +281,10 @@ function renderCalendar() {
 }
 
 /* ---------------- MODAL ---------------- */
+/**
+ * Muestra las tareas de un día concreto en el modal.
+ * @param {string} date - Fecha en formato YYYY-MM-DD.
+ */
 function showModal(date) {
     const modal = document.getElementById("calendarModal");
     modal.style.display = "flex";
@@ -224,12 +322,19 @@ document.getElementById("calendarModal").addEventListener("click", (e) => {
     }
 });
 
+/**
+ * Cambia el mes visible en el calendario.
+ * @param {number} step - Número de meses a desplazar (positivo o negativo).
+ */
 function changeMonth(step) {
     currentDate.setMonth(currentDate.getMonth() + step);
     renderCalendar();
 }
 
 /* ---------------- EFECTOS ---------------- */
+/**
+ * Lanza pequeñas partículas de confeti desde la parte superior de la pantalla.
+ */
 function launchConfetti() {
     for (let i = 0; i < 15; i++) {
         let conf = document.createElement("div");
@@ -245,12 +350,20 @@ function launchConfetti() {
 const completeAudio = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
 completeAudio.volume = 0.4;
 
+/**
+ * Reproduce el sonido de tarea completada.
+ */
 function playSound() {
     completeAudio.currentTime = 0;
     completeAudio.play();
 }
 
 /* ---------------- FORMATEAR FECHA ---------------- */
+/**
+ * Convierte una fecha YYYY-MM-DD a DD/MM/YYYY.
+ * @param {string} dateString - Fecha en formato estándar.
+ * @returns {string} Fecha formateada para mostrar.
+ */
 function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
