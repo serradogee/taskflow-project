@@ -1,0 +1,105 @@
+---
+
+# Experimento 4: Ordenar una lista de números
+
+## Solución sin IA
+
+Se implementó manualmente una función para ordenar un array de números utilizando el método sort de JavaScript.
+
+function sortNumbers(numbers){
+  return numbers.sort(function(a,b){
+    return a - b;
+  });
+}
+
+Tiempo aproximado: 4 minutos.
+
+## Solución con IA
+
+Se pidió a la IA generar una función para ordenar números de menor a mayor.
+
+function sortNumbers(numbers){
+  return [...numbers].sort((a,b) => a - b);
+}
+
+Tiempo aproximado: 1 minuto.
+
+## Comparación
+
+La versión generada por IA utiliza el operador spread para evitar modificar el array original. Esto mejora la calidad del código y evita efectos secundarios.
+
+---
+
+# Experimento 5: Contar tareas completadas (TaskFlow)
+
+## Solución sin IA
+
+Se creó una función para contar cuántas tareas están completadas dentro de un array de tareas.
+
+function countCompletedTasks(tasks){
+  let count = 0;
+
+  for(let i = 0; i < tasks.length; i++){
+    if(tasks[i].completed){
+      count++;
+    }
+  }
+
+  return count;
+}
+
+Tiempo aproximado: 6 minutos.
+
+## Solución con IA
+
+Se pidió a la IA optimizar la función utilizando métodos modernos de JavaScript.
+
+function countCompletedTasks(tasks){
+  return tasks.filter(task => task.completed).length;
+}
+
+Tiempo aproximado: 2 minutos.
+
+## Comparación
+
+La solución con IA es más corta y utiliza métodos funcionales de JavaScript, lo que mejora la legibilidad del código.
+
+---
+
+# Experimento 6: Guardar tareas en localStorage (TaskFlow)
+
+## Solución sin IA
+
+Se escribió manualmente una función para guardar las tareas en el almacenamiento local del navegador.
+
+function saveTasks(tasks){
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+Tiempo aproximado: 5 minutos.
+
+## Solución con IA
+
+La IA generó una función con manejo básico de errores.
+
+function saveTasks(tasks){
+  try{
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }catch(error){
+    console.error("Error saving tasks", error);
+  }
+}
+
+Tiempo aproximado: 2 minutos.
+
+## Comparación
+
+La versión generada con IA incluye manejo de errores, lo que hace el código más robusto y preparado para posibles fallos.
+
+---
+
+# Conclusión adicional
+
+Los experimentos adicionales muestran que el uso de inteligencia artificial puede mejorar la calidad del código al sugerir buenas prácticas como evitar mutaciones de datos, usar métodos modernos de JavaScript y añadir manejo de errores.
+
+Sin embargo, comprender primero cómo resolver los problemas manualmente sigue siendo importante para desarrollar habilidades de programación.
