@@ -1,4 +1,4 @@
-C: \Users\SERRANO\Desktop\taskflow -projectlet tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
 
 // Preferencia de tema
