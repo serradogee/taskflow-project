@@ -60,6 +60,23 @@ function applyTaskFilters(taskList, filters) {
         .filter(task => filters.priority === "all" || task.priority === filters.priority);
 }
 
+/**
+ * Resetea los filtros de la lista de tareas y vuelve a mostrar todo.
+ */
+function resetTaskFilters() {
+    const nameInput = document.getElementById("filterName");
+    const dayInput = document.getElementById("filterDay");
+    const categoryInput = document.getElementById("filterCategory");
+    const prioritySelect = document.getElementById("filterPriority");
+
+    if (nameInput) nameInput.value = "";
+    if (dayInput) dayInput.value = "";
+    if (categoryInput) categoryInput.value = "";
+    if (prioritySelect) prioritySelect.value = "all";
+
+    renderTasks();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     tasks = sortTasksByDateTime(tasks);
     renderTasks();
@@ -213,6 +230,17 @@ function renderTasks() {
 
         list.appendChild(div);
     });
+
+    const counterElement = document.getElementById("taskCounter");
+    if (counterElement) {
+        if (tasks.length === 0) {
+            counterElement.textContent = "No hay tareas todavía";
+        } else if (filteredTasks.length === tasks.length) {
+            counterElement.textContent = `${filteredTasks.length} tareas`;
+        } else {
+            counterElement.textContent = `${filteredTasks.length} de ${tasks.length} tareas`;
+        }
+    }
 }
 
 /* ---------------- COMPLETAR ---------------- */
