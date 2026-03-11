@@ -117,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tasks = sortTasksByDateTime(tasks);
     renderTasks();
     renderCalendar();
+    updateTaskSummary();
 });
 
 /* ---------------- VISTAS ---------------- */
@@ -278,6 +279,8 @@ function renderTasks() {
             counterElement.textContent = `${filteredTasks.length} de ${tasks.length} tareas`;
         }
     }
+
+    updateTaskSummary();
 }
 
 /* ---------------- COMPLETAR ---------------- */
@@ -342,6 +345,36 @@ function renderCalendar() {
 
         dayDiv.onclick = () => showModal(fullDate);
         calendar.appendChild(dayDiv);
+    }
+}
+
+/**
+ * Actualiza el panel de resumen de tareas en la vista de inicio.
+ */
+function updateTaskSummary() {
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const pendingTasks = totalTasks - completedTasks;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayKey = today.toISOString().slice(0, 10);
+    const todayTasks = tasks.filter(task => task.date === todayKey).length;
+
+    const totalElement = document.getElementById("summaryTotal");
+    const completedElement = document.getElementById("summaryCompleted");
+    const pendingElement = document.getElementById("summaryPending");
+    const todayElement = document.getElementById("summaryToday");
+    const progressBar = document.getElementById("summaryProgressBar");
+
+    if (totalElement) totalElement.textContent = totalTasks.toString();
+    if (completedElement) completedElement.textContent = completedTasks.toString();
+    if (pendingElement) pendingElement.textContent = pendingTasks.toString();
+    if (todayElement) todayElement.textContent = todayTasks.toString();
+
+    if (progressBar) {
+        const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+        progressBar.style.width = `${progress}%`;
     }
 }
 
