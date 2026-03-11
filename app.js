@@ -61,6 +61,42 @@ function applyTaskFilters(taskList, filters) {
 }
 
 /**
+ * Obtiene la opción de ordenación seleccionada en el listado de tareas.
+ * @returns {string} Clave de ordenación seleccionada.
+ */
+function getTaskSortOption() {
+    const sortSelect = document.getElementById("sortOption");
+    return sortSelect?.value || "dateAsc";
+}
+
+/**
+ * Ordena una lista de tareas para su visualización según la opción seleccionada.
+ * @param {Array<Object>} taskList - Lista de tareas a ordenar.
+ * @param {string} sortOption - Clave de ordenación.
+ * @returns {Array<Object>} Lista ordenada.
+ */
+function sortTasksForView(taskList, sortOption) {
+    const listCopy = [...taskList];
+
+    switch (sortOption) {
+        case "dateDesc":
+            return listCopy.sort((a, b) => {
+                const aKey = a.date + (a.time || "23:59");
+                const bKey = b.date + (b.time || "23:59");
+                return bKey.localeCompare(aKey);
+            });
+        case "titleAsc":
+            return listCopy.sort((a, b) => a.title.localeCompare(b.title, "es", { sensitivity: "base" }));
+        case "priorityDesc":
+            const priorityOrder = { "Alta": 3, "Media": 2, "Baja": 1 };
+            return listCopy.sort((a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0));
+        case "dateAsc":
+        default:
+            return sortTasksByDateTime(listCopy);
+    }
+}
+
+/**
  * Resetea los filtros de la lista de tareas y vuelve a mostrar todo.
  */
 function resetTaskFilters() {
@@ -201,7 +237,8 @@ function renderTasks() {
     list.innerHTML = "";
 
     const filters = getTaskFilters();
-    const filteredTasks = applyTaskFilters(tasks, filters);
+    const sortOption = getTaskSortOption();
+    const filteredTasks = sortTasksForView(applyTaskFilters(tasks, filters), sortOption);
 
     filteredTasks.forEach(task => {
         const div = document.createElement("div");

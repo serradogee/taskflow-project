@@ -103,6 +103,13 @@
                     <option value="Media">Media</option>
                     <option value="Baja">Baja</option>
                 </select>
+                <select id="sortOption"
+                    class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="dateAsc">Fecha (más próximas primero)</option>
+                    <option value="dateDesc">Fecha (más lejanas primero)</option>
+                    <option value="titleAsc">Título (A-Z)</option>
+                    <option value="priorityDesc">Prioridad (Alta → Baja)</option>
+                </select>
                 <button type="button" onclick="renderTasks()"
                     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300">
                     Filtrar
