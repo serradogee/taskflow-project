@@ -103,3 +103,92 @@ La versión generada con IA incluye manejo de errores, lo que hace el código m�
 Los experimentos adicionales muestran que el uso de inteligencia artificial puede mejorar la calidad del código al sugerir buenas prácticas como evitar mutaciones de datos, usar métodos modernos de JavaScript y añadir manejo de errores.
 
 Sin embargo, comprender primero cómo resolver los problemas manualmente sigue siendo importante para desarrollar habilidades de programación.
+
+
+
+
+
+
+# Conectar servidores MCP
+
+En este documento se investiga qué es el Model Context Protocol (MCP), cómo configurarlo en Cursor y cómo utilizarlo para acceder a información de un repositorio de GitHub.
+
+---
+
+# ¿Qué es Model Context Protocol?
+
+Model Context Protocol (MCP) es un protocolo que permite conectar modelos de inteligencia artificial con herramientas externas. Gracias a MCP, la IA puede acceder a información adicional como archivos del sistema, repositorios de GitHub o bases de datos.
+
+Esto permite que la IA tenga más contexto para analizar proyectos y ayudar en tareas de programación.
+
+En lugar de copiar y pegar código en el chat, la IA puede acceder directamente al repositorio y analizar el proyecto completo.
+
+---
+
+# Configuración de MCP en Cursor
+
+Cursor permite conectar diferentes servidores MCP para ampliar las capacidades de la inteligencia artificial.
+
+El proceso general consiste en:
+
+1. Instalar un servidor MCP.
+2. Conectar el servidor con Cursor.
+3. Autorizar el acceso al repositorio de GitHub.
+4. Realizar consultas a la IA utilizando la información del repositorio.
+
+---
+
+# Instalación del servidor MCP de GitHub
+
+Para esta práctica se utilizó el servidor MCP de GitHub, que permite a la IA acceder a repositorios y analizar el código del proyecto.
+
+## Paso 1: Instalar el servidor MCP
+
+Se instaló el servidor MCP de GitHub utilizando Node.js.
+
+npm install -g @modelcontextprotocol/server-github
+
+## Paso 2: Conectar GitHub con Cursor
+
+Una vez instalado el servidor, se conectó Cursor con GitHub para permitir que la IA accediera al repositorio del proyecto TaskFlow.
+
+## Paso 3: Acceder al repositorio
+
+Después de conectar GitHub, la IA puede leer los archivos del repositorio y analizar el código del proyecto.
+
+---
+
+# Pruebas realizadas
+
+Para comprobar que el servidor MCP funcionaba correctamente, se realizaron varias consultas utilizando el repositorio de GitHub.
+
+### Consulta 1
+Analiza la estructura del repositorio TaskFlow.
+
+### Consulta 2
+Busca funciones largas en el código JavaScript.
+
+### Consulta 3
+Detecta posibles errores o malas prácticas en el proyecto.
+
+### Consulta 4
+Genera documentación para las funciones principales del código.
+
+### Consulta 5
+Sugiere mejoras en la organización del proyecto.
+
+---
+
+# Utilidad de MCP en proyectos reales
+
+El uso de MCP en proyectos reales puede ser muy útil porque permite que la inteligencia artificial tenga acceso directo al código del repositorio.
+
+Algunos ejemplos de uso son:
+
+- Analizar grandes proyectos automáticamente.
+- Detectar errores o malas prácticas en el código.
+- Generar documentación técnica del proyecto.
+- Refactorizar funciones complejas.
+- Ayudar a nuevos desarrolladores a entender el proyecto rápidamente.
+
+En proyectos grandes con muchos archivos, MCP permite a la IA analizar todo el repositorio y proporcionar sugerencias más completas y precisas.
