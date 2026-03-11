@@ -1,4 +1,4 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+gilet tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
 let editingTaskId = null;
 
