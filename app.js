@@ -1,5 +1,6 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
+let editingTaskId = null;
 
 // Preferencia de tema
 const rootElement = document.documentElement;
@@ -263,7 +264,13 @@ function renderTasks() {
                 <span class="px-3 py-1 rounded-full text-white text-sm ${priorityColor}">${task.priority}</span>
             </div>
         </div>
-        <button class="delete-btn absolute bottom-2 right-2 text-red-600 hover:scale-125 transition-transform" onclick="deleteTask(${task.id})">✕</button>
+        <div class="absolute bottom-2 right-2 flex gap-1">
+            <button class="delete-btn text-red-600 hover:scale-125 transition-transform" onclick="deleteTask(${task.id})" aria-label="Eliminar tarea">✕</button>
+            <button class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                onclick="openEditModal(${task.id})">
+                Editar
+            </button>
+        </div>
         `;
 
         list.appendChild(div);
@@ -401,6 +408,111 @@ function showModal(date) {
         `;
         modalTasks.appendChild(div);
     });
+}
+
+/**
+ * Abre el modal de edición para la tarea indicada.
+ * @param {number} taskId - Identificador de la tarea a editar.
+ */
+function openEditModal(taskId) {
+    const taskToEdit = tasks.find(task => task.id === taskId);
+    if (!taskToEdit) {
+        return;
+    }
+
+    editingTaskId = taskId;
+
+    const titleInput = document.getElementById("editTaskTitle");
+    const dateInput = document.getElementById("editTaskDate");
+    const timeInput = document.getElementById("editTaskTime");
+    const categoryInput = document.getElementById("editTaskCategory");
+    const prioritySelect = document.getElementById("editTaskPriority");
+    const modal = document.getElementById("editTaskModal");
+
+    if (titleInput) titleInput.value = taskToEdit.title;
+    if (dateInput) dateInput.value = taskToEdit.date;
+    if (timeInput) timeInput.value = taskToEdit.time || "";
+    if (categoryInput) categoryInput.value = taskToEdit.category || "";
+    if (prioritySelect) prioritySelect.value = taskToEdit.priority;
+
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+}
+
+/**
+ * Cierra el modal de edición de tarea sin guardar cambios.
+ */
+function closeEditModal() {
+    const modal = document.getElementById("editTaskModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+    editingTaskId = null;
+}
+
+/**
+ * Guarda los cambios realizados sobre la tarea abierta en el modal de edición.
+ */
+function saveTaskEdits() {
+    if (editingTaskId === null) {
+        return;
+    }
+
+    const titleInput = document.getElementById("editTaskTitle");
+    const dateInput = document.getElementById("editTaskDate");
+    const timeInput = document.getElementById("editTaskTime");
+    const categoryInput = document.getElementById("editTaskCategory");
+    const prioritySelect = document.getElementById("editTaskPriority");
+
+    const editedTitle = titleInput.value.trim();
+    const editedDate = dateInput.value;
+    const editedTime = timeInput.value;
+    const editedCategory = categoryInput.value.trim() || "Sin categoría";
+    const editedPriority = prioritySelect.value;
+
+    if (!editedTitle || !editedDate) {
+        alert("Debes indicar al menos un título y una fecha.");
+        return;
+    }
+
+    if (editedTitle.length < 3) {
+        alert("El título debe tener al menos 3 caracteres.");
+        return;
+    }
+
+    if (editedTitle.length > 100) {
+        alert("El título es demasiado largo (máximo 100 caracteres).");
+        return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(editedDate);
+    if (selectedDate < today) {
+        alert("La fecha no puede estar en el pasado.");
+        return;
+    }
+
+    tasks = tasks.map(task => {
+        if (task.id !== editingTaskId) return task;
+        return {
+            ...task,
+            title: editedTitle,
+            date: editedDate,
+            time: editedTime,
+            category: editedCategory,
+            priority: editedPriority
+        };
+    });
+
+    tasks = sortTasksByDateTime(tasks);
+    persistTasks();
+    renderTasks();
+    renderCalendar();
+    closeEditModal();
 }
 
 function closeModal() {

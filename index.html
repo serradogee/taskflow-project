@@ -161,6 +161,51 @@
             </div>
         </section>
 
+        <!-- ================== MODAL EDICIÓN TAREA ================== -->
+        <div id="editTaskModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg">
+                <h3 class="text-lg font-semibold mb-4">Editar tarea</h3>
+
+                <div class="flex flex-col gap-3">
+                    <label for="editTaskTitle" class="text-sm font-medium">Título</label>
+                    <input type="text" id="editTaskTitle"
+                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                    <label for="editTaskDate" class="text-sm font-medium">Fecha</label>
+                    <input type="date" id="editTaskDate"
+                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                    <label for="editTaskTime" class="text-sm font-medium">Hora (opcional)</label>
+                    <input type="time" id="editTaskTime"
+                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                    <label for="editTaskCategory" class="text-sm font-medium">Categoría (opcional)</label>
+                    <input type="text" id="editTaskCategory"
+                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+
+                    <label for="editTaskPriority" class="text-sm font-medium">Prioridad</label>
+                    <select id="editTaskPriority"
+                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeEditModal()"
+                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-300">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="saveTaskEdits()"
+                        class="px-4 py-2 rounded-lg bg-primary text-white text-sm hover:bg-red-700 transition-colors duration-300">
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="app.js"></script>
