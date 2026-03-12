@@ -1,4 +1,4 @@
-gilet tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentDate = new Date();
 let editingTaskId = null;
 
@@ -211,6 +211,7 @@ function addTask() {
     renderTasks();
     renderCalendar();
     showTaskCreatedMessage();
+    closeNewTaskModal();
 }
 
 /* ---------------- MENSAJE TEMPORAL ---------------- */
@@ -515,6 +516,28 @@ function saveTaskEdits() {
     closeEditModal();
 }
 
+/**
+ * Abre el modal de nueva tarea.
+ */
+function openNewTaskModal() {
+    const modal = document.getElementById("newTaskModal");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+}
+
+/**
+ * Cierra el modal de nueva tarea.
+ */
+function closeNewTaskModal() {
+    const modal = document.getElementById("newTaskModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+}
+
 function closeModal() {
     document.getElementById("calendarModal").style.display = "none";
 }
@@ -523,6 +546,8 @@ function closeModal() {
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         closeModal();
+        closeEditModal();
+        closeNewTaskModal();
     }
 });
 
