@@ -31,34 +31,38 @@ function sortTasksByDateTime(taskList) {
 
 /**
  * Obtiene los filtros introducidos en el formulario de filtros de tareas.
- * @returns {{title: string, date: string, category: string, priority: string}} Filtros normalizados.
+ * @returns {{title: string, status: string, priority: string, date: string}} Filtros normalizados.
  */
 function getTaskFilters() {
     const titleFilter = document.getElementById("filterName")?.value.toLowerCase() || "";
-    const dateFilter = document.getElementById("filterDay")?.value || "";
-    const categoryFilter = document.getElementById("filterCategory")?.value.toLowerCase() || "";
+    const statusFilter = document.getElementById("filterStatus")?.value || "all";
     const priorityFilter = document.getElementById("filterPriority")?.value || "all";
+    const dateFilter = window.currentDateFilter || ""; // Variable global temporal para el filtro rápido de fechas
 
     return {
         title: titleFilter,
-        date: dateFilter,
-        category: categoryFilter,
-        priority: priorityFilter
+        status: statusFilter,
+        priority: priorityFilter,
+        date: dateFilter
     };
 }
 
 /**
  * Aplica los filtros del listado de tareas sobre una lista dada.
  * @param {Array<Object>} taskList - Lista de tareas de entrada.
- * @param {{title: string, date: string, category: string, priority: string}} filters - Filtros a aplicar.
+ * @param {{title: string, status: string, priority: string, date: string}} filters - Filtros a aplicar.
  * @returns {Array<Object>} Lista filtrada.
  */
 function applyTaskFilters(taskList, filters) {
     return taskList
         .filter(task => task.title.toLowerCase().includes(filters.title))
-        .filter(task => !filters.date || task.date === filters.date)
-        .filter(task => task.category.toLowerCase().includes(filters.category))
-        .filter(task => filters.priority === "all" || task.priority === filters.priority);
+        .filter(task => {
+            if (filters.status === "pending") return !task.completed;
+            if (filters.status === "completed") return task.completed;
+            return true; // "all"
+        })
+        .filter(task => filters.priority === "all" || task.priority === filters.priority)
+        .filter(task => !filters.date || task.date === filters.date);
 }
 
 /**
@@ -102,24 +106,46 @@ function sortTasksForView(taskList, sortOption) {
  */
 function resetTaskFilters() {
     const nameInput = document.getElementById("filterName");
-    const dayInput = document.getElementById("filterDay");
-    const categoryInput = document.getElementById("filterCategory");
+    const statusSelect = document.getElementById("filterStatus");
     const prioritySelect = document.getElementById("filterPriority");
+    const sortSelect = document.getElementById("sortOption");
 
     if (nameInput) nameInput.value = "";
-    if (dayInput) dayInput.value = "";
-    if (categoryInput) categoryInput.value = "";
+    if (statusSelect) statusSelect.value = "all";
     if (prioritySelect) prioritySelect.value = "all";
+    if (sortSelect) sortSelect.value = "dateAsc";
+
+    window.currentDateFilter = ""; // Limpiar variable de fecha de hoy
 
     renderTasks();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    initDateSelects();
     tasks = sortTasksByDateTime(tasks);
     renderTasks();
     renderCalendar();
     updateTaskSummary();
 });
+
+/**
+ * Rellena las opciones de días y años en los selectores de fecha personalizados.
+ */
+function initDateSelects() {
+    const currentYear = new Date().getFullYear();
+    const daysHtml = Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}">${i + 1}</option>`).join('');
+    const yearsHtml = Array.from({ length: 10 }, (_, i) => `<option value="${currentYear + i}">${currentYear + i}</option>`).join('');
+
+    ['taskDay', 'editTaskDay'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = daysHtml;
+    });
+
+    ['taskYear', 'editTaskYear'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = yearsHtml;
+    });
+}
 
 /* ---------------- VISTAS ---------------- */
 /**
@@ -143,9 +169,8 @@ function showView(id) {
 
     document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
 
-    if (id === "homeView") document.querySelectorAll("nav button")[0].classList.add("active");
-    if (id === "tasksView") document.querySelectorAll("nav button")[1].classList.add("active");
-    if (id === "calendarView") document.querySelectorAll("nav button")[2].classList.add("active");
+    if (id === "tasksView") document.querySelectorAll("nav button")[0]?.classList.add("active");
+    if (id === "calendarView") document.querySelectorAll("nav button")[1]?.classList.add("active");
 }
 
 /* ---------------- CREAR TAREA ---------------- */
@@ -154,20 +179,23 @@ function showView(id) {
  */
 function addTask() {
     const titleInput = document.getElementById("taskTitle");
-    const dateInput = document.getElementById("taskDate");
+    const dayInput = document.getElementById("taskDay");
+    const monthInput = document.getElementById("taskMonth");
+    const yearInput = document.getElementById("taskYear");
+
     const timeInput = document.getElementById("taskTime");
     const categoryInput = document.getElementById("taskCategory");
     const prioritySelect = document.getElementById("taskPriority");
 
     const title = titleInput.value.trim();
-    const date = dateInput.value;
+    const date = `${yearInput.value}-${monthInput.value}-${dayInput.value}`;
     const time = timeInput.value;
     const category = categoryInput.value.trim() || "Sin categoría";
     const priority = prioritySelect.value;
 
     // Validación básica de campos obligatorios
-    if (!title || !date) {
-        alert("Debes indicar al menos un título y una fecha.");
+    if (!title || !dayInput.value || !monthInput.value || !yearInput.value) {
+        alert("Debes indicar al menos un título y una fecha válida.");
         return;
     }
 
@@ -247,30 +275,35 @@ function renderTasks() {
         const div = document.createElement("div");
         div.className = "task-card relative";
 
-        // Colores según prioridad
-        let priorityColor = '';
-        if (task.priority === 'Alta') priorityColor = 'bg-red-600';
-        else if (task.priority === 'Media') priorityColor = 'bg-yellow-500';
-        else if (task.priority === 'Baja') priorityColor = 'bg-green-600';
-
         div.innerHTML = `
         <div class="card-inner">
-            <div class="card-front bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col gap-2">
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})" class="h-5 w-5 cursor-pointer">
-                    <strong class="${task.completed ? 'line-through opacity-60' : ''} truncate">${task.title}</strong>
+            <div class="card-front bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col relative h-full">
+                <!-- Círculo de prioridad arriba a la derecha -->
+                <div class="absolute top-3 right-3 w-3 h-3 rounded-full ${task.priority === 'Alta' ? 'bg-red-600' : task.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-600'}" title="Prioridad: ${task.priority}"></div>
+                
+                <div class="flex items-start gap-3 pr-6 mb-2">
+                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})" class="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                    <strong class="${task.completed ? 'line-through opacity-50' : ''} line-clamp-2 text-sm font-semibold flex-1 leading-snug">${task.title}</strong>
                 </div>
-                <small>${formatDate(task.date)} ${task.time || ""}</small>
-                <small>${task.category}</small>
-                <span class="px-3 py-1 rounded-full text-white text-sm ${priorityColor}">${task.priority}</span>
+                
+                <div class="flex flex-col gap-0.5 mt-auto mb-6">
+                    <small class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        ${formatDate(task.date)} ${task.time || ""}
+                    </small>
+                    <small class="text-xs text-gray-400 dark:text-gray-500">${task.category}</small>
+                </div>
+
+                <!-- Botones abajo en las esquinas -->
+                <button class="absolute bottom-3 left-4 text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+                    onclick="openEditModal(${task.id})">
+                    Editar
+                </button>
+                <button class="absolute bottom-3 right-4 text-base text-gray-400 hover:text-red-600 transition-all hover:scale-110" 
+                    onclick="promptDeleteTask(${task.id})" aria-label="Eliminar tarea">
+                    ✕
+                </button>
             </div>
-        </div>
-        <div class="absolute bottom-2 right-2 flex gap-1">
-            <button class="delete-btn text-red-600 hover:scale-125 transition-transform" onclick="deleteTask(${task.id})" aria-label="Eliminar tarea">✕</button>
-            <button class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                onclick="openEditModal(${task.id})">
-                Editar
-            </button>
         </div>
         `;
 
@@ -311,15 +344,79 @@ function toggleComplete(id) {
 }
 
 /* ---------------- ELIMINAR ---------------- */
+let taskToDeleteId = null;
+
 /**
- * Elimina una tarea por id.
- * @param {number} id - Identificador único de la tarea.
+ * Abre el prompt de confirmación para eliminar.
  */
-function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-    persistTasks();
-    renderTasks();
-    renderCalendar();
+function promptDeleteTask(id) {
+    taskToDeleteId = id;
+    const modal = document.getElementById("confirmDeleteModal");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+}
+
+/**
+ * Cierra el prompt de confirmación.
+ */
+function closeConfirmDeleteModal() {
+    taskToDeleteId = null;
+    const modal = document.getElementById("confirmDeleteModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+}
+
+/**
+ * Confirma y elimina una tarea por id.
+ */
+function confirmDeleteTask() {
+    if (taskToDeleteId !== null) {
+        tasks = tasks.filter(task => task.id !== taskToDeleteId);
+        persistTasks();
+        renderTasks();
+        renderCalendar();
+        closeConfirmDeleteModal();
+    }
+}
+
+/**
+ * Marca todas las tareas como completadas.
+ */
+function markAllCompleted() {
+    let changed = false;
+    tasks = tasks.map(task => {
+        if (!task.completed) {
+            changed = true;
+            return { ...task, completed: true };
+        }
+        return task;
+    });
+
+    if (changed) {
+        persistTasks();
+        launchConfetti();
+        playSound();
+        renderTasks();
+        renderCalendar();
+    }
+}
+
+/**
+ * Borra todas las tareas que están completadas.
+ */
+function deleteAllCompleted() {
+    const beforeLength = tasks.length;
+    tasks = tasks.filter(task => !task.completed);
+
+    if (tasks.length < beforeLength) {
+        persistTasks();
+        renderTasks();
+        renderCalendar();
+    }
 }
 
 /* ---------------- CALENDARIO ---------------- */
@@ -364,9 +461,13 @@ function updateTaskSummary() {
     const completedTasks = tasks.filter(task => task.completed).length;
     const pendingTasks = totalTasks - completedTasks;
 
+    // Obtener la fecha local en formato YYYY-MM-DD correcta para comparar
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayKey = today.toISOString().slice(0, 10);
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayKey = `${year}-${month}-${day}`;
+
     const todayTasks = tasks.filter(task => task.date === todayKey).length;
 
     const totalElement = document.getElementById("summaryTotal");
@@ -386,6 +487,33 @@ function updateTaskSummary() {
     }
 }
 
+/**
+ * Función activada al hacer click en los marcadores del Dashboard de Inicio.
+ * Navega a la vista de tareas y pre-aplica los filtros correspondientes.
+ * @param {string} filterType - 'all', 'completed', 'pending' o 'today'
+ */
+function filterFromSummary(filterType) {
+    // Resetear todos los filtros primero (y la variable global)
+    resetTaskFilters();
+
+    const statusSelect = document.getElementById("filterStatus");
+
+    if (filterType === 'completed' || filterType === 'pending') {
+        if (statusSelect) statusSelect.value = filterType;
+    } else if (filterType === 'today') {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        window.currentDateFilter = `${year}-${month}-${day}`;
+        // Dejamos el selector de estado en "all"
+    }
+
+    // Mostramos la vista y re-renderizamos la lista
+    showView('tasksView');
+    renderTasks();
+}
+
 /* ---------------- MODAL ---------------- */
 /**
  * Muestra las tareas de un día concreto en el modal.
@@ -395,6 +523,15 @@ function showModal(date) {
     const modal = document.getElementById("calendarModal");
     modal.style.display = "flex";
     document.getElementById("modalTitle").textContent = "Tareas del " + formatDate(date);
+
+    // Botón para añadir en este día
+    const addBtn = document.getElementById("addCalendarTaskBtn");
+    if (addBtn) {
+        addBtn.onclick = () => {
+            closeModal();
+            openNewTaskModal(date);
+        };
+    }
 
     const modalTasks = document.getElementById("modalTasks");
     modalTasks.innerHTML = "";
@@ -424,14 +561,22 @@ function openEditModal(taskId) {
     editingTaskId = taskId;
 
     const titleInput = document.getElementById("editTaskTitle");
-    const dateInput = document.getElementById("editTaskDate");
+    const dayInput = document.getElementById("editTaskDay");
+    const monthInput = document.getElementById("editTaskMonth");
+    const yearInput = document.getElementById("editTaskYear");
+
     const timeInput = document.getElementById("editTaskTime");
     const categoryInput = document.getElementById("editTaskCategory");
     const prioritySelect = document.getElementById("editTaskPriority");
     const modal = document.getElementById("editTaskModal");
 
     if (titleInput) titleInput.value = taskToEdit.title;
-    if (dateInput) dateInput.value = taskToEdit.date;
+    if (taskToEdit.date) {
+        const [year, month, day] = taskToEdit.date.split("-");
+        if (dayInput) dayInput.value = day;
+        if (monthInput) monthInput.value = month;
+        if (yearInput) yearInput.value = year;
+    }
     if (timeInput) timeInput.value = taskToEdit.time || "";
     if (categoryInput) categoryInput.value = taskToEdit.category || "";
     if (prioritySelect) prioritySelect.value = taskToEdit.priority;
@@ -463,19 +608,22 @@ function saveTaskEdits() {
     }
 
     const titleInput = document.getElementById("editTaskTitle");
-    const dateInput = document.getElementById("editTaskDate");
+    const dayInput = document.getElementById("editTaskDay");
+    const monthInput = document.getElementById("editTaskMonth");
+    const yearInput = document.getElementById("editTaskYear");
+
     const timeInput = document.getElementById("editTaskTime");
     const categoryInput = document.getElementById("editTaskCategory");
     const prioritySelect = document.getElementById("editTaskPriority");
 
     const editedTitle = titleInput.value.trim();
-    const editedDate = dateInput.value;
+    const editedDate = `${yearInput.value}-${monthInput.value}-${dayInput.value}`;
     const editedTime = timeInput.value;
     const editedCategory = categoryInput.value.trim() || "Sin categoría";
     const editedPriority = prioritySelect.value;
 
-    if (!editedTitle || !editedDate) {
-        alert("Debes indicar al menos un título y una fecha.");
+    if (!editedTitle || !dayInput.value || !monthInput.value || !yearInput.value) {
+        alert("Debes indicar al menos un título y una fecha válida.");
         return;
     }
 
@@ -518,12 +666,25 @@ function saveTaskEdits() {
 
 /**
  * Abre el modal de nueva tarea.
+ * @param {string|null} presetDate - Opcional. Permite rellenar la fecha automáticamente.
  */
-function openNewTaskModal() {
+function openNewTaskModal(presetDate = null) {
     const modal = document.getElementById("newTaskModal");
     if (modal) {
         modal.classList.remove("hidden");
         modal.classList.add("flex");
+    }
+
+    // Si viene del calendario, pre-rellenar la fecha separada
+    if (presetDate) {
+        const [year, month, day] = presetDate.split("-");
+        const dayInput = document.getElementById("taskDay");
+        const monthInput = document.getElementById("taskMonth");
+        const yearInput = document.getElementById("taskYear");
+
+        if (dayInput) dayInput.value = day;
+        if (monthInput) monthInput.value = month;
+        if (yearInput) yearInput.value = year;
     }
 }
 
