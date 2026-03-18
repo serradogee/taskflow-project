@@ -228,20 +228,20 @@ async function addTask() {
 
     try {
         const createdTask = await createTask(newTaskData);
-        tasks = sortTasksByDateTime([...tasks, createdTask]);
-        // persistTasks(); // Ya no dependemos de localStorage para guardar
+        if (createdTask) {
+            tasks = sortTasksByDateTime([...tasks, createdTask]);
+            
+            titleInput.value = "";
+            timeInput.value = "";
+            categoryInput.value = "";
 
-        titleInput.value = "";
-        timeInput.value = "";
-        categoryInput.value = "";
-
-        renderTasks();
-        renderCalendar();
-        showTaskCreatedMessage();
-        closeNewTaskModal();
+            renderTasks();
+            renderCalendar();
+            showTaskCreatedMessage();
+            closeNewTaskModal();
+        }
     } catch (err) {
         console.error("Error al procesar la tarea:", err);
-        // No mostramos alert ya que el cliente ya maneja el fallback local
     }
 }
 
