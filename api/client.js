@@ -1,41 +1,52 @@
 // api/client.js
 // Configuración dinámica de la URL de la API
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-// Si estás en GitHub Pages u otro lugar, esto intentará usar el mismo dominio o fallará silenciosamente
-const API_URL = isLocal ? 'http://localhost:3001/post/api/v1/tasks' : '/post/api/v1/tasks';
+
+// En GitHub Pages, el proyecto suele estar en una subcarpeta /nombre-repo/
+// Usamos una ruta que intente ser relativa al origen o fallar si no estamos en local
+const API_URL = isLocal ? 'http://localhost:3001/post/api/v1/tasks' : (window.location.origin + window.location.pathname + 'post/api/v1/tasks');
+
 const LOCAL_STORAGE_KEY = 'taskflow_local_tasks';
 
 /**
- * Obtiene las tareas locales del localStorage.
+ * Obtiene las tareas locales del localStorage de forma segura.
  */
 function getLocalTasks() {
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    try {
+        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        console.error("Error al leer localStorage:", e);
+        return [];
+    }
 }
 
 /**
- * Guarda las tareas locales en el localStorage.
+ * Guarda las tareas locales en el localStorage de forma segura.
  */
 function saveLocalTasks(tasks) {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
+    } catch (e) {
+        console.error("Error al guardar en localStorage (posiblemente lleno):", e);
+    }
 }
 
 window.fetchTasks = async function() {
     let apiTasks = [];
     try {
+        // Solo intentamos fetch si estamos en local o si no estamos en un entorno estático puro
         const response = await fetch(API_URL);
         if (response.ok) {
             apiTasks = await response.json();
         }
     } catch (error) {
-        console.warn("API no disponible, usando solo localStorage:", error);
+        console.warn("API no accesible (esperado en GitHub Pages si no hay backend desplegado):", error);
     }
 
     const localTasks = getLocalTasks();
-    
-    // Combinar evitando duplicados si el ID ya existe en la API
-    const apiIds = new Set(apiTasks.map(t => t.id));
-    const mergedTasks = [...apiTasks, ...localTasks.filter(t => !apiIds.has(t.id))];
+    const apiIds = new Set(apiTasks.map(t => String(t.id)));
+    const mergedTasks = [...apiTasks, ...localTasks.filter(t => !apiIds.has(String(t.id)))];
     
     return mergedTasks;
 }
@@ -52,7 +63,7 @@ window.createTask = async function(task) {
             return await response.json();
         }
     } catch (error) {
-        console.error("Error al crear en servidor, guardando localmente:", error);
+        console.error("Error en servidor, usando modo local:", error);
     }
 
     // Fallback: Guardar localmente

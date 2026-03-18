@@ -272,7 +272,8 @@ function renderTasks() {
 
     const filters = getTaskFilters();
     const sortOption = getTaskSortOption();
-    const filteredTasks = sortTasksForView(applyTaskFilters(tasks, filters), sortOption);
+    const currentTasks = Array.isArray(tasks) ? tasks : [];
+    const filteredTasks = sortTasksForView(applyTaskFilters(currentTasks, filters), sortOption);
 
     filteredTasks.forEach(task => {
         const div = document.createElement("div");
