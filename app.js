@@ -284,7 +284,7 @@ function renderTasks() {
                 <div class="absolute top-3 right-3 w-3 h-3 rounded-full ${task.priority === 'Alta' ? 'bg-red-600' : task.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-600'}" title="Prioridad: ${task.priority}"></div>
                 
                 <div class="flex items-start gap-3 pr-6 mb-2">
-                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete(${task.id})" class="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete('${task.id}')" class="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                     <strong class="${task.completed ? 'line-through opacity-50' : ''} line-clamp-2 text-sm font-semibold flex-1 leading-snug">${task.title}</strong>
                 </div>
                 
@@ -294,15 +294,16 @@ function renderTasks() {
                         ${formatDate(task.date)} ${task.time || ""}
                     </small>
                     <small class="text-xs text-gray-400 dark:text-gray-500">${task.category}</small>
+                    ${task.isLocal ? `<span class="local-task-badge">Solo local (sin conexión)</span>` : ''}
                 </div>
 
                 <!-- Botones abajo en las esquinas -->
                 <button class="absolute bottom-3 left-4 text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
-                    onclick="openEditModal(${task.id})">
+                    onclick="openEditModal('${task.id}')">
                     Editar
                 </button>
                 <button class="absolute bottom-3 right-4 text-base text-gray-400 hover:text-red-600 transition-all hover:scale-110" 
-                    onclick="promptDeleteTask(${task.id})" aria-label="Eliminar tarea">
+                    onclick="promptDeleteTask('${task.id}')" aria-label="Eliminar tarea">
                     ✕
                 </button>
             </div>
@@ -332,7 +333,7 @@ function renderTasks() {
  * @param {number} id - Identificador único de la tarea.
  */
 async function toggleComplete(id) {
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find(t => String(t.id) === String(id));
     if (!task) return;
     
     const newStatus = !task.completed;
@@ -387,7 +388,7 @@ async function confirmDeleteTask() {
     if (taskToDeleteId !== null) {
         try {
             await deleteTask(taskToDeleteId);
-            tasks = tasks.filter(task => task.id !== taskToDeleteId);
+            tasks = tasks.filter(task => String(task.id) !== String(taskToDeleteId));
             // persistTasks(); 
             renderTasks();
             renderCalendar();
@@ -405,19 +406,28 @@ async function markAllCompleted() {
     const pendingTasks = tasks.filter(t => !t.completed);
     if (pendingTasks.length === 0) return;
 
-    try {
-        // Actualiza el estado a "completado" en el servidor para todas las pendientes
-        await Promise.all(pendingTasks.map(t => updateTask(t.id, { completed: true })));
-        
-        tasks = tasks.map(task => ({ ...task, completed: true }));
-        
-        launchConfetti();
-        playSound();
-        renderTasks();
-        renderCalendar();
-    } catch (err) {
-        alert("Error al marcar todas las tareas en el servidor.");
+    // Intentar actualizar cada una. No usamos Promise.all para que si una falla, las demás sigan.
+    const results = await Promise.allSettled(pendingTasks.map(t => updateTask(t.id, { completed: true })));
+    
+    // Actualizamos el estado local de todas las que tuvieron éxito (o todas si queremos ser optimistas)
+    tasks = tasks.map(task => {
+        const result = results.find((r, i) => String(pendingTasks[i].id) === String(task.id));
+        if (result && result.status === 'fulfilled') {
+            return { ...task, completed: true };
+        }
+        return task;
+    });
+    
+    // Si alguna falló, avisamos pero no bloqueamos
+    const errors = results.filter(r => r.status === 'rejected');
+    if (errors.length > 0) {
+        console.warn(`${errors.length} tareas no pudieron actualizarse en el servidor.`);
     }
+
+    launchConfetti();
+    playSound();
+    renderTasks();
+    renderCalendar();
 }
 
 /**
@@ -427,17 +437,22 @@ async function deleteAllCompleted() {
     const completedTasks = tasks.filter(t => t.completed);
     if (completedTasks.length === 0) return;
 
-    try {
-        // Elimina del servidor todas las tareas que estén completadas
-        await Promise.all(completedTasks.map(t => deleteTask(t.id)));
-        
-        tasks = tasks.filter(task => !task.completed);
-        
-        renderTasks();
-        renderCalendar();
-    } catch (err) {
-        alert("Error al borrar las tareas completadas en el servidor.");
-    }
+    // Intentar eliminar cada una
+    const results = await Promise.allSettled(completedTasks.map(t => deleteTask(t.id)));
+    
+    // Filtramos las tareas locales eliminando las que se borraron con éxito
+    tasks = tasks.filter(task => {
+        const resultIndex = completedTasks.findIndex(t => String(t.id) === String(task.id));
+        if (resultIndex === -1) return true; // No era una de las completadas
+        return results[resultIndex].status !== 'fulfilled'; // Mantener si falló el borrado (o si queremos ser drásticos, borrar igual)
+        // En realidad, para el usuario es mejor que desaparezcan si les dio a borrar
+    });
+    
+    // Forzamos borrado local de todas si queremos que la UI sea coherente
+    tasks = tasks.filter(t => !t.completed);
+
+    renderTasks();
+    renderCalendar();
 }
 
 /* ---------------- CALENDARIO ---------------- */
@@ -583,7 +598,7 @@ function showModal(date) {
  * @param {number} taskId - Identificador de la tarea a editar.
  */
 function openEditModal(taskId) {
-    const taskToEdit = tasks.find(task => task.id === taskId);
+    const taskToEdit = tasks.find(task => String(task.id) === String(taskId));
     if (!taskToEdit) {
         return;
     }
@@ -686,7 +701,7 @@ async function saveTaskEdits() {
     try {
         await updateTask(editingTaskId, editedTaskData);
         tasks = tasks.map(task => {
-            if (task.id !== editingTaskId) return task;
+            if (String(task.id) !== String(editingTaskId)) return task;
             return {
                 ...task,
                 ...editedTaskData
