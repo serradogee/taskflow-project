@@ -240,7 +240,8 @@ async function addTask() {
         showTaskCreatedMessage();
         closeNewTaskModal();
     } catch (err) {
-        alert("Error al guardar la tarea en el servidor.");
+        console.error("Error al procesar la tarea:", err);
+        // No mostramos alert ya que el cliente ya maneja el fallback local
     }
 }
 

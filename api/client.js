@@ -1,6 +1,8 @@
 // api/client.js
-// URL Base de la API - Cambiar por la URL real de Render/Vercel en producción
-const API_URL = 'http://localhost:3001/post/api/v1/tasks';
+// Configuración dinámica de la URL de la API
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// Si estás en GitHub Pages u otro lugar, esto intentará usar el mismo dominio o fallará silenciosamente
+const API_URL = isLocal ? 'http://localhost:3001/post/api/v1/tasks' : '/post/api/v1/tasks';
 const LOCAL_STORAGE_KEY = 'taskflow_local_tasks';
 
 /**
