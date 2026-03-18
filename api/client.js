@@ -1,53 +1,45 @@
 // api/client.js
+console.log("api/client.js cargado correctamente");
+
 // Configuración para el profesor: Por defecto usa localStorage cuando no está en localhost
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const _isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const _API_URL = _isLocal ? 'http://localhost:3001/post/api/v1/tasks' : null;
+const _LOCAL_STORAGE_KEY = 'taskflow_local_tasks';
 
-// URL de la API (solo se usa en local por defecto)
-const API_URL = isLocal ? 'http://localhost:3001/post/api/v1/tasks' : null;
-const LOCAL_STORAGE_KEY = 'taskflow_local_tasks';
-
-/**
- * Obtiene las tareas locales del localStorage de forma segura.
- */
-function getLocalTasks() {
+function _getLocalTasks() {
     try {
-        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const data = localStorage.getItem(_LOCAL_STORAGE_KEY);
         return data ? JSON.parse(data) : [];
     } catch (e) {
         return [];
     }
 }
 
-/**
- * Guarda las tareas locales en el localStorage de forma segura.
- */
-function saveLocalTasks(tasks) {
+function _saveLocalTasks(tasks) {
     try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
+        localStorage.setItem(_LOCAL_STORAGE_KEY, JSON.stringify(tasks));
     } catch (e) {}
 }
 
-window.fetchTasks = async function() {
+async function fetchTasks() {
     let apiTasks = [];
-    if (API_URL) {
+    if (_API_URL) {
         try {
-            const response = await fetch(API_URL);
+            const response = await fetch(_API_URL);
             if (response.ok) apiTasks = await response.json();
         } catch (error) {
             console.warn("Servidor no detectado, usando modo local.");
         }
     }
-
-    const localTasks = getLocalTasks();
+    const localTasks = _getLocalTasks();
     const apiIds = new Set(apiTasks.map(t => String(t.id)));
     return [...apiTasks, ...localTasks.filter(t => !apiIds.has(String(t.id)))];
 }
 
-window.createTask = async function(task) {
-    // Si hay URL de API, intentamos guardar allí
-    if (API_URL) {
+async function createTask(task) {
+    if (_API_URL) {
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(task)
@@ -57,46 +49,39 @@ window.createTask = async function(task) {
             console.warn("Error en servidor, guardando localmente.");
         }
     }
-
-    // Fallback SIEMPRE: Guardar localmente
-    const localTasks = getLocalTasks();
+    const localTasks = _getLocalTasks();
     const newTask = { ...task, id: `local-${Date.now()}`, isLocal: true };
     localTasks.push(newTask);
-    saveLocalTasks(localTasks);
+    _saveLocalTasks(localTasks);
     return newTask;
 }
 
-window.deleteTask = async function(id) {
+async function deleteTask(id) {
     const isLocalId = typeof id === 'string' && id.startsWith('local-');
-    
     if (isLocalId) {
-        const localTasks = getLocalTasks().filter(t => String(t.id) !== String(id));
-        saveLocalTasks(localTasks);
+        const localTasks = _getLocalTasks().filter(t => String(t.id) !== String(id));
+        _saveLocalTasks(localTasks);
         return true;
     }
-
-    if (API_URL) {
+    if (_API_URL) {
         try {
-            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${_API_URL}/${id}`, { method: 'DELETE' });
             if (response.ok || response.status === 204) return true;
         } catch (e) {}
     }
-    
-    return true; // Retornamos true para no bloquear la UI aunque el API falle
+    return true;
 }
 
-window.updateTask = async function(id, updates) {
+async function updateTask(id, updates) {
     const isLocalId = typeof id === 'string' && id.startsWith('local-');
-
     if (isLocalId) {
-        const localTasks = getLocalTasks().map(t => String(t.id) === String(id) ? { ...t, ...updates } : t);
-        saveLocalTasks(localTasks);
+        const localTasks = _getLocalTasks().map(t => String(t.id) === String(id) ? { ...t, ...updates } : t);
+        _saveLocalTasks(localTasks);
         return localTasks.find(t => String(t.id) === String(id));
     }
-
-    if (API_URL) {
+    if (_API_URL) {
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
+            const response = await fetch(`${_API_URL}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updates)
@@ -104,7 +89,11 @@ window.updateTask = async function(id, updates) {
             if (response.ok) return await response.json();
         } catch (e) {}
     }
-    
-    // Si falla el servidor, actualizamos al menos el estado local si existía una copia (opcional)
-    return { id, ...updates }; // Devolvemos algo para no romper la UI
+    return { id, ...updates };
 }
+
+// Exportar al objeto global explícitamente por si acaso
+window.fetchTasks = fetchTasks;
+window.createTask = createTask;
+window.deleteTask = deleteTask;
+window.updateTask = updateTask;
