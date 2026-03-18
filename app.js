@@ -11,12 +11,14 @@ if (storedTheme === "dark") {
 
 // Carga inicial
 document.addEventListener("DOMContentLoaded", async () => {
+    console.log("TaskFlow v1.2 - Inicializando...");
     initDateSelects();
     try {
         const fetchedTasks = await fetchTasks();
-        tasks = sortTasksByDateTime(fetchedTasks);
+        tasks = sortTasksByDateTime(Array.isArray(fetchedTasks) ? fetchedTasks : []);
     } catch (e) {
         console.error("Error cargando tareas iniciales", e);
+        tasks = [];
     }
     renderTasks();
     renderCalendar();
