@@ -1,4 +1,4 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = [];
 let currentDate = new Date();
 let editingTaskId = null;
 
@@ -9,12 +9,19 @@ if (storedTheme === "dark") {
     rootElement.classList.add("dark");
 }
 
-/**
- * Guarda el array de tareas actual en localStorage.
- */
-function persistTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+// Carga inicial
+document.addEventListener("DOMContentLoaded", async () => {
+    initDateSelects();
+    try {
+        const fetchedTasks = await fetchTasks();
+        tasks = sortTasksByDateTime(fetchedTasks);
+    } catch (e) {
+        console.error("Error cargando tareas iniciales", e);
+    }
+    renderTasks();
+    renderCalendar();
+    updateTaskSummary();
+});
 
 /**
  * Ordena una lista de tareas por fecha y hora (ascendente).
@@ -120,13 +127,7 @@ function resetTaskFilters() {
     renderTasks();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    initDateSelects();
-    tasks = sortTasksByDateTime(tasks);
-    renderTasks();
-    renderCalendar();
-    updateTaskSummary();
-});
+/* DOMContentLoaded was moved to top level */
 
 /**
  * Rellena las opciones de días y años en los selectores de fecha personalizados.
@@ -177,7 +178,7 @@ function showView(id) {
 /**
  * Valida los datos del formulario y crea una nueva tarea.
  */
-function addTask() {
+async function addTask() {
     const titleInput = document.getElementById("taskTitle");
     const dayInput = document.getElementById("taskDay");
     const monthInput = document.getElementById("taskMonth");
@@ -193,13 +194,11 @@ function addTask() {
     const category = categoryInput.value.trim() || "Sin categoría";
     const priority = prioritySelect.value;
 
-    // Validación básica de campos obligatorios
     if (!title || !dayInput.value || !monthInput.value || !yearInput.value) {
         alert("Debes indicar al menos un título y una fecha válida.");
         return;
     }
 
-    // Validación de longitud del título
     if (title.length < 3) {
         alert("El título debe tener al menos 3 caracteres.");
         return;
@@ -210,7 +209,6 @@ function addTask() {
         return;
     }
 
-    // Validación de fecha en el pasado
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const selectedDate = new Date(date);
@@ -219,8 +217,7 @@ function addTask() {
         return;
     }
 
-    const newTask = {
-        id: Date.now(),
+    const newTaskData = {
         title,
         date,
         time,
@@ -229,17 +226,22 @@ function addTask() {
         completed: false
     };
 
-    tasks = sortTasksByDateTime([...tasks, newTask]);
-    persistTasks();
+    try {
+        const createdTask = await createTask(newTaskData);
+        tasks = sortTasksByDateTime([...tasks, createdTask]);
+        // persistTasks(); // Ya no dependemos de localStorage para guardar
 
-    titleInput.value = "";
-    timeInput.value = "";
-    categoryInput.value = "";
+        titleInput.value = "";
+        timeInput.value = "";
+        categoryInput.value = "";
 
-    renderTasks();
-    renderCalendar();
-    showTaskCreatedMessage();
-    closeNewTaskModal();
+        renderTasks();
+        renderCalendar();
+        showTaskCreatedMessage();
+        closeNewTaskModal();
+    } catch (err) {
+        alert("Error al guardar la tarea en el servidor.");
+    }
 }
 
 /* ---------------- MENSAJE TEMPORAL ---------------- */
@@ -329,18 +331,26 @@ function renderTasks() {
  * Marca o desmarca una tarea como completada.
  * @param {number} id - Identificador único de la tarea.
  */
-function toggleComplete(id) {
-    tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
-    persistTasks();
-
+async function toggleComplete(id) {
     const task = tasks.find(t => t.id === id);
-    if (task.completed) {
-        launchConfetti();
-        playSound();
+    if (!task) return;
+    
+    const newStatus = !task.completed;
+    
+    try {
+        await updateTask(id, { completed: newStatus });
+        tasks = tasks.map(t => t.id === id ? { ...t, completed: newStatus } : t);
+        
+        if (newStatus) {
+            launchConfetti();
+            playSound();
+        }
+        
+        renderTasks();
+        renderCalendar();
+    } catch (err) {
+        alert("Error al actualizar la tarea en el servidor");
     }
-
-    renderTasks();
-    renderCalendar();
 }
 
 /* ---------------- ELIMINAR ---------------- */
@@ -373,49 +383,60 @@ function closeConfirmDeleteModal() {
 /**
  * Confirma y elimina una tarea por id.
  */
-function confirmDeleteTask() {
+async function confirmDeleteTask() {
     if (taskToDeleteId !== null) {
-        tasks = tasks.filter(task => task.id !== taskToDeleteId);
-        persistTasks();
-        renderTasks();
-        renderCalendar();
-        closeConfirmDeleteModal();
+        try {
+            await deleteTask(taskToDeleteId);
+            tasks = tasks.filter(task => task.id !== taskToDeleteId);
+            // persistTasks(); 
+            renderTasks();
+            renderCalendar();
+            closeConfirmDeleteModal();
+        } catch (err) {
+            alert("Error al eliminar la tarea en el servidor.");
+        }
     }
 }
 
 /**
  * Marca todas las tareas como completadas.
  */
-function markAllCompleted() {
-    let changed = false;
-    tasks = tasks.map(task => {
-        if (!task.completed) {
-            changed = true;
-            return { ...task, completed: true };
-        }
-        return task;
-    });
+async function markAllCompleted() {
+    const pendingTasks = tasks.filter(t => !t.completed);
+    if (pendingTasks.length === 0) return;
 
-    if (changed) {
-        persistTasks();
+    try {
+        // Actualiza el estado a "completado" en el servidor para todas las pendientes
+        await Promise.all(pendingTasks.map(t => updateTask(t.id, { completed: true })));
+        
+        tasks = tasks.map(task => ({ ...task, completed: true }));
+        
         launchConfetti();
         playSound();
         renderTasks();
         renderCalendar();
+    } catch (err) {
+        alert("Error al marcar todas las tareas en el servidor.");
     }
 }
 
 /**
  * Borra todas las tareas que están completadas.
  */
-function deleteAllCompleted() {
-    const beforeLength = tasks.length;
-    tasks = tasks.filter(task => !task.completed);
+async function deleteAllCompleted() {
+    const completedTasks = tasks.filter(t => t.completed);
+    if (completedTasks.length === 0) return;
 
-    if (tasks.length < beforeLength) {
-        persistTasks();
+    try {
+        // Elimina del servidor todas las tareas que estén completadas
+        await Promise.all(completedTasks.map(t => deleteTask(t.id)));
+        
+        tasks = tasks.filter(task => !task.completed);
+        
         renderTasks();
         renderCalendar();
+    } catch (err) {
+        alert("Error al borrar las tareas completadas en el servidor.");
     }
 }
 
@@ -437,15 +458,24 @@ function renderCalendar() {
 
     for (let i = 0; i < firstDay; i++) calendar.innerHTML += "<div></div>";
 
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
     for (let d = 1; d <= daysInMonth; d++) {
         const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayDiv = document.createElement("div");
 
-        dayDiv.className = "day bg-white dark:bg-gray-700 rounded-lg p-3 shadow-md cursor-pointer min-h-[80px] flex flex-col items-start gap-1";
+        let dayClasses = "day bg-white dark:bg-gray-700 rounded-lg p-3 shadow-md cursor-pointer min-h-[80px] flex flex-col items-start gap-1 transition scrollbar-hide";
+        if (fullDate === todayStr) {
+            dayClasses += " border-2 border-primary bg-red-50 dark:bg-red-900/40 text-primary dark:text-red-400";
+        }
+        dayDiv.className = dayClasses;
+        
         dayDiv.innerHTML = `<strong class="text-sm font-semibold">${d}</strong>`;
 
         tasks.filter(t => t.date === fullDate).forEach(t => {
-            dayDiv.innerHTML += `<div class="text-xs truncate">${t.title}</div>`;
+            const strikeClass = t.completed ? "line-through opacity-50" : "";
+            dayDiv.innerHTML += `<div class="text-xs truncate w-full ${strikeClass}">${t.title}</div>`;
         });
 
         dayDiv.onclick = () => showModal(fullDate);
@@ -602,7 +632,7 @@ function closeEditModal() {
 /**
  * Guarda los cambios realizados sobre la tarea abierta en el modal de edición.
  */
-function saveTaskEdits() {
+async function saveTaskEdits() {
     if (editingTaskId === null) {
         return;
     }
@@ -645,23 +675,31 @@ function saveTaskEdits() {
         return;
     }
 
-    tasks = tasks.map(task => {
-        if (task.id !== editingTaskId) return task;
-        return {
-            ...task,
-            title: editedTitle,
-            date: editedDate,
-            time: editedTime,
-            category: editedCategory,
-            priority: editedPriority
-        };
-    });
+    const editedTaskData = {
+        title: editedTitle,
+        date: editedDate,
+        time: editedTime,
+        category: editedCategory,
+        priority: editedPriority
+    };
 
-    tasks = sortTasksByDateTime(tasks);
-    persistTasks();
-    renderTasks();
-    renderCalendar();
-    closeEditModal();
+    try {
+        await updateTask(editingTaskId, editedTaskData);
+        tasks = tasks.map(task => {
+            if (task.id !== editingTaskId) return task;
+            return {
+                ...task,
+                ...editedTaskData
+            };
+        });
+
+        tasks = sortTasksByDateTime(tasks);
+        renderTasks();
+        renderCalendar();
+        closeEditModal();
+    } catch (err) {
+        alert("Error al guardar los cambios en el servidor.");
+    }
 }
 
 /**
@@ -675,9 +713,19 @@ function openNewTaskModal(presetDate = null) {
         modal.classList.add("flex");
     }
 
-    // Si viene del calendario, pre-rellenar la fecha separada
-    if (presetDate) {
-        const [year, month, day] = presetDate.split("-");
+    let dateToUse = presetDate;
+    
+    // Si no viene fecha del calendario (click en el botón +), usamos hoy por defecto
+    if (!dateToUse) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        dateToUse = `${year}-${month}-${day}`;
+    }
+
+    if (dateToUse) {
+        const [year, month, day] = dateToUse.split("-");
         const dayInput = document.getElementById("taskDay");
         const monthInput = document.getElementById("taskMonth");
         const yearInput = document.getElementById("taskYear");
@@ -709,6 +757,7 @@ document.addEventListener("keydown", (e) => {
         closeModal();
         closeEditModal();
         closeNewTaskModal();
+        closeConfirmDeleteModal();
     }
 });
 
@@ -764,6 +813,8 @@ function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
 }
+
+
 
 /* ---------------- MODO OSCURO ---------------- */
 document.getElementById("darkToggle").addEventListener("click", () => {

@@ -2,42 +2,50 @@
 const taskService = require('../services/task.service');
 
 // GET /api/v1/tasks
-function getTasks(req, res) {
-    const tasks = taskService.obtenerTodas();
-    res.json(tasks);
+function getTasks(req, res, next) {
+    try {
+        const tasks = taskService.obtenerTodas();
+        res.json(tasks);
+    } catch (err) {
+        next(err);
+    }
 }
 
 // POST /api/v1/tasks
-function createTask(req, res) {
+function createTask(req, res, next) {
     try {
         const nueva = taskService.crearTarea(req.body);
         res.status(201).json(nueva);
     } catch (err) {
-        if (err.message === 'INVALID_DATA') {
-            res.status(400).json({ error: 'Datos de tarea inválidos' });
-        } else {
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
+        next(err);
     }
 }
 
 // DELETE /api/v1/tasks/:id
-function deleteTask(req, res) {
-    const id = Number(req.params.id);
+function deleteTask(req, res, next) {
     try {
+        const id = Number(req.params.id);
         taskService.eliminarTarea(id);
         res.status(204).send();
     } catch (err) {
-        if (err.message === 'NOT_FOUND') {
-            res.status(404).json({ error: 'Tarea no encontrada' });
-        } else {
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
+        next(err);
+    }
+}
+
+// PUT /api/v1/tasks/:id
+function updateTask(req, res, next) {
+    try {
+        const id = Number(req.params.id);
+        const tareaActualizada = taskService.actualizarTarea(id, req.body);
+        res.json(tareaActualizada);
+    } catch (err) {
+        next(err);
     }
 }
 
 module.exports = {
     getTasks,
     createTask,
+    updateTask,
     deleteTask
 };

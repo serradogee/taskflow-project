@@ -1,6 +1,7 @@
+// src/index.js
 const express = require('express');
 const cors = require('cors');
-const { port } = require('./config/env');
+const { PORT } = require('./config/env');
 const taskRoutes = require('./routes/task.routes');
 
 const app = express();
@@ -9,13 +10,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Montamos el enrutador
-app.use('/api/v1/tasks', taskRoutes);
-
-app.get('/', (req, res) => {
-    res.send('Servidor funcionando correctamente');
+// Logger simple
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next();
 });
 
-app.listen(port, () => {
-    console.log(`Servidor escuchando en puerto ${port}`);
+// Rutas
+app.use('/api/v1/tasks', taskRoutes);
+
+// Middleware global de errores
+app.use((err, req, res, next) => {
+    if (err.message === 'NOT_FOUND') {
+        return res.status(404).json({ error: 'Recurso no encontrado' });
+    }
+
+    if (err.message === 'INVALID_DATA') {
+        return res.status(400).json({ error: 'Datos inválidos' });
+    }
+
+    console.error(err); // Esto ayuda a debug
+    res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+// Arrancar servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
