@@ -15,7 +15,7 @@ function getLocalTasks() {
 function saveLocalTasks(tasks) {
     try {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
-    } catch (e) {}
+    } catch (e) { }
 }
 
 async function fetchTasks() {
@@ -40,7 +40,7 @@ async function createTask(task) {
                 body: JSON.stringify(task)
             });
             if (response.ok) return await response.json();
-        } catch (error) {}
+        } catch (error) { }
     }
     const localTasks = getLocalTasks();
     const newTask = { ...task, id: `local-${Date.now()}`, isLocal: true };
@@ -60,7 +60,7 @@ async function deleteTask(id) {
         try {
             const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
             if (response.ok || response.status === 204) return true;
-        } catch (e) {}
+        } catch (e) { }
     }
     return true;
 }
@@ -80,7 +80,7 @@ async function updateTask(id, updates) {
                 body: JSON.stringify(updates)
             });
             if (response.ok) return await response.json();
-        } catch (e) {}
+        } catch (e) { }
     }
     return { id, ...updates };
 }
@@ -200,24 +200,6 @@ function sortTasksForView(taskList, sortOption) {
     }
 }
 
-/**
- * Resetea los filtros de la lista de tareas y vuelve a mostrar todo.
- */
-function resetTaskFilters() {
-    const nameInput = document.getElementById("filterName");
-    const statusSelect = document.getElementById("filterStatus");
-    const prioritySelect = document.getElementById("filterPriority");
-    const sortSelect = document.getElementById("sortOption");
-
-    if (nameInput) nameInput.value = "";
-    if (statusSelect) statusSelect.value = "all";
-    if (prioritySelect) prioritySelect.value = "all";
-    if (sortSelect) sortSelect.value = "dateAsc";
-
-    window.currentDateFilter = ""; // Limpiar variable de fecha de hoy
-
-    renderTasks();
-}
 
 /* DOMContentLoaded was moved to top level */
 
@@ -322,7 +304,7 @@ async function addTask() {
         const createdTask = await createTask(newTaskData);
         if (createdTask) {
             tasks = sortTasksByDateTime([...tasks, createdTask]);
-            
+
             titleInput.value = "";
             timeInput.value = "";
             categoryInput.value = "";
@@ -429,18 +411,18 @@ function renderTasks() {
 async function toggleComplete(id) {
     const task = tasks.find(t => String(t.id) === String(id));
     if (!task) return;
-    
+
     const newStatus = !task.completed;
-    
+
     try {
         await updateTask(id, { completed: newStatus });
         tasks = tasks.map(t => t.id === id ? { ...t, completed: newStatus } : t);
-        
+
         if (newStatus) {
             launchConfetti();
             playSound();
         }
-        
+
         renderTasks();
         renderCalendar();
     } catch (err) {
@@ -502,7 +484,7 @@ async function markAllCompleted() {
 
     // Intentar actualizar cada una. No usamos Promise.all para que si una falla, las demás sigan.
     const results = await Promise.allSettled(pendingTasks.map(t => updateTask(t.id, { completed: true })));
-    
+
     // Actualizamos el estado local de todas las que tuvieron éxito (o todas si queremos ser optimistas)
     tasks = tasks.map(task => {
         const result = results.find((r, i) => String(pendingTasks[i].id) === String(task.id));
@@ -511,7 +493,7 @@ async function markAllCompleted() {
         }
         return task;
     });
-    
+
     // Si alguna falló, avisamos pero no bloqueamos
     const errors = results.filter(r => r.status === 'rejected');
     if (errors.length > 0) {
@@ -533,7 +515,7 @@ async function deleteAllCompleted() {
 
     // Intentar eliminar cada una
     const results = await Promise.allSettled(completedTasks.map(t => deleteTask(t.id)));
-    
+
     // Filtramos las tareas locales eliminando las que se borraron con éxito
     tasks = tasks.filter(task => {
         const resultIndex = completedTasks.findIndex(t => String(t.id) === String(task.id));
@@ -541,7 +523,7 @@ async function deleteAllCompleted() {
         return results[resultIndex].status !== 'fulfilled'; // Mantener si falló el borrado (o si queremos ser drásticos, borrar igual)
         // En realidad, para el usuario es mejor que desaparezcan si les dio a borrar
     });
-    
+
     // Forzamos borrado local de todas si queremos que la UI sea coherente
     tasks = tasks.filter(t => !t.completed);
 
@@ -559,13 +541,29 @@ function renderCalendar() {
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
-    document.getElementById("monthYear").textContent =
-        currentDate.toLocaleString("es", { month: "long", year: "numeric" });
+    const monthName = currentDate.toLocaleString("es", { month: "long" });
+    const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    document.getElementById("monthYear").textContent = `${capitalizedMonth} de ${year}`;
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    for (let i = 0; i < firstDay; i++) calendar.innerHTML += "<div></div>";
+    // Cabeceras de los días (Lunes a Domingo)
+    const dayNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    dayNames.forEach(name => {
+        const dayHeader = document.createElement("div");
+        dayHeader.className = "text-center font-bold text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-widest py-1";
+        dayHeader.textContent = name;
+        calendar.appendChild(dayHeader);
+    });
+
+    // Ajuste para que la semana empiece en Lunes (0=Dom, 1=Lun... -> 0=Lun, 6=Dom)
+    const startingIndex = (firstDay === 0) ? 6 : firstDay - 1;
+
+    for (let i = 0; i < startingIndex; i++) {
+        const emptyDiv = document.createElement("div");
+        calendar.appendChild(emptyDiv);
+    }
 
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -579,7 +577,7 @@ function renderCalendar() {
             dayClasses += " border-2 border-primary bg-red-50 dark:bg-red-900/40 text-primary dark:text-red-400";
         }
         dayDiv.className = dayClasses;
-        
+
         dayDiv.innerHTML = `<strong class="text-sm font-semibold">${d}</strong>`;
 
         tasks.filter(t => t.date === fullDate).forEach(t => {
@@ -632,9 +630,6 @@ function updateTaskSummary() {
  * @param {string} filterType - 'all', 'completed', 'pending' o 'today'
  */
 function filterFromSummary(filterType) {
-    // Resetear todos los filtros primero (y la variable global)
-    resetTaskFilters();
-
     const statusSelect = document.getElementById("filterStatus");
 
     if (filterType === 'completed' || filterType === 'pending') {
@@ -823,7 +818,7 @@ function openNewTaskModal(presetDate = null) {
     }
 
     let dateToUse = presetDate;
-    
+
     // Si no viene fecha del calendario (click en el botón +), usamos hoy por defecto
     if (!dateToUse) {
         const today = new Date();
