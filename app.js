@@ -355,30 +355,30 @@ function renderTasks() {
 
         div.innerHTML = `
         <div class="card-inner">
-            <div class="card-front bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col relative h-full">
+            <div class="card-front bg-white dark:bg-gray-800 p-4 3xl:p-8 4xl:p-12 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 flex flex-col relative h-full">
                 <!-- Círculo de prioridad arriba a la derecha -->
-                <div class="absolute top-3 right-3 w-3 h-3 rounded-full ${task.priority === 'Alta' ? 'bg-red-600' : task.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-600'}" title="Prioridad: ${task.priority}"></div>
+                <div class="absolute top-3 3xl:top-5 4xl:top-8 right-3 3xl:right-5 4xl:right-8 w-3 3xl:w-5 4xl:w-8 h-3 3xl:h-5 4xl:h-8 rounded-full ${task.priority === 'Alta' ? 'bg-red-600' : task.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-600'}" title="Prioridad: ${task.priority}"></div>
                 
-                <div class="flex items-start gap-3 pr-6 mb-2">
-                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete('${task.id}')" class="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
-                    <strong class="${task.completed ? 'line-through opacity-50' : ''} line-clamp-2 text-sm font-semibold flex-1 leading-snug">${task.title}</strong>
+                <div class="flex items-start gap-3 3xl:gap-6 4xl:gap-10 pr-6 3xl:pr-10 4xl:pr-16 mb-2 3xl:mb-6 4xl:mb-10">
+                    <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleComplete('${task.id}')" class="mt-1 h-5 w-5 3xl:h-8 3xl:w-8 4xl:h-12 4xl:w-12 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer transition-all">
+                    <strong class="${task.completed ? 'line-through opacity-50' : ''} line-clamp-2 text-sm 3xl:text-xl 4xl:text-3xl font-semibold flex-1 leading-snug">${task.title}</strong>
                 </div>
                 
-                <div class="flex flex-col gap-0.5 mt-auto mb-6">
-                    <small class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <div class="flex flex-col gap-0.5 3xl:gap-3 4xl:gap-5 mt-auto mb-6 3xl:mb-12 4xl:mb-20">
+                    <small class="text-xs 3xl:text-lg 4xl:text-2xl text-gray-500 dark:text-gray-400 flex items-center gap-1 3xl:gap-3 4xl:gap-5">
+                        <svg class="w-3 h-3 3xl:w-6 3xl:h-6 4xl:w-10 4xl:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         ${formatDate(task.date)} ${task.time || ""}
                     </small>
-                    <small class="text-xs text-gray-400 dark:text-gray-500">${task.category}</small>
-                    ${task.isLocal ? `<span class="local-task-badge">Solo local (sin conexión)</span>` : ''}
+                    <small class="text-xs 3xl:text-lg 4xl:text-2xl text-gray-400 dark:text-gray-500 font-medium">${task.category}</small>
+                    ${task.isLocal ? `<span class="local-task-badge 3xl:text-sm 4xl:text-lg mt-2">Solo local (sin conexión)</span>` : ''}
                 </div>
 
                 <!-- Botones abajo en las esquinas -->
-                <button class="absolute bottom-3 left-4 text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+                <button class="absolute bottom-3 3xl:bottom-6 4xl:bottom-10 left-4 3xl:left-8 4xl:left-12 text-xs 3xl:text-lg 4xl:text-2xl font-bold text-blue-500 hover:text-blue-700 transition-colors"
                     onclick="openEditModal('${task.id}')">
                     Editar
                 </button>
-                <button class="absolute bottom-3 right-4 text-base text-gray-400 hover:text-red-600 transition-all hover:scale-110" 
+                <button class="absolute bottom-3 3xl:bottom-6 4xl:bottom-10 right-4 3xl:right-8 4xl:right-12 text-base 3xl:text-3xl 4xl:text-5xl text-gray-400 hover:text-red-600 transition-all hover:scale-110" 
                     onclick="promptDeleteTask('${task.id}')" aria-label="Eliminar tarea">
                     ✕
                 </button>
@@ -552,7 +552,7 @@ function renderCalendar() {
     const dayNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
     dayNames.forEach(name => {
         const dayHeader = document.createElement("div");
-        dayHeader.className = "text-center font-bold text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-widest py-1";
+        dayHeader.className = "text-center font-bold text-gray-400 dark:text-gray-500 text-[10px] 3xl:text-xl 4xl:text-3xl uppercase tracking-widest py-1 3xl:py-6 4xl:py-10";
         dayHeader.textContent = name;
         calendar.appendChild(dayHeader);
     });
@@ -572,17 +572,17 @@ function renderCalendar() {
         const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayDiv = document.createElement("div");
 
-        let dayClasses = "day bg-white dark:bg-gray-700 rounded-lg p-3 shadow-md cursor-pointer min-h-[80px] flex flex-col items-start gap-1 transition scrollbar-hide";
+        let dayClasses = "day bg-white dark:bg-gray-700 rounded-lg p-3 3xl:p-8 4xl:p-12 shadow-md cursor-pointer min-h-[80px] 3xl:min-h-[180px] 4xl:min-h-[300px] flex flex-col items-start gap-1 3xl:gap-3 transition scrollbar-hide";
         if (fullDate === todayStr) {
             dayClasses += " border-2 border-primary bg-red-50 dark:bg-red-900/40 text-primary dark:text-red-400";
         }
         dayDiv.className = dayClasses;
 
-        dayDiv.innerHTML = `<strong class="text-sm font-semibold">${d}</strong>`;
+        dayDiv.innerHTML = `<strong class="text-sm 3xl:text-3xl 4xl:text-5xl font-bold">${d}</strong>`;
 
         tasks.filter(t => t.date === fullDate).forEach(t => {
             const strikeClass = t.completed ? "line-through opacity-50" : "";
-            dayDiv.innerHTML += `<div class="text-xs truncate w-full ${strikeClass}">${t.title}</div>`;
+            dayDiv.innerHTML += `<div class="text-xs 3xl:text-xl 4xl:text-3xl truncate w-full ${strikeClass}">${t.title}</div>`;
         });
 
         dayDiv.onclick = () => showModal(fullDate);

@@ -26,6 +26,10 @@
                     colors: {
                         primary: '#e10600',
                         secondary: '#111'
+                    },
+                    screens: {
+                        '3xl': '1920px',
+                        '4xl': '2560px'
                     }
                 }
             }
@@ -36,28 +40,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans 3xl:text-2xl 4xl:text-4xl transition-all">
 
-    <header class="flex justify-between items-center px-6 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-sm">
-        <h1 class="text-2xl font-bold cursor-pointer tracking-tight" onclick="showView('homeView')">NOTEYOU</h1>
-        <nav class="flex gap-6 text-sm md:text-base items-center" aria-label="Navegación principal">
-            <button type="button" class="nav-btn flex items-center gap-1.5 hover:scale-105 transition-transform"
+    <header class="flex justify-between items-center px-6 3xl:px-12 4xl:px-20 py-3 3xl:py-6 4xl:py-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-sm transition-all border-b border-gray-100 dark:border-gray-700">
+        <h1 class="text-2xl 3xl:text-4xl 4xl:text-5xl font-bold cursor-pointer tracking-tight" onclick="showView('homeView')">NOTEYOU</h1>
+        <nav class="flex gap-6 3xl:gap-12 4xl:gap-20 text-sm md:text-base items-center" aria-label="Navegación principal">
+            <button type="button" class="nav-btn flex items-center gap-1.5 3xl:gap-3 hover:scale-105 transition-transform"
                 onclick="showView('tasksView')" title="Tareas">
-                <span class="text-xl">📝</span> <span class="font-bold tracking-wide">Tareas</span>
+                <span class="text-xl 3xl:text-3xl 4xl:text-4xl">📝</span> <span class="font-bold tracking-wide">Tareas</span>
             </button>
-            <button type="button" class="nav-btn flex items-center gap-1.5 hover:scale-105 transition-transform"
+            <button type="button" class="nav-btn flex items-center gap-1.5 3xl:gap-3 hover:scale-105 transition-transform"
                 onclick="showView('calendarView')" title="Calendario">
-                <span class="text-xl">📅</span> <span class="font-bold tracking-wide">Calendario</span>
+                <span class="text-xl 3xl:text-3xl 4xl:text-4xl">📅</span> <span class="font-bold tracking-wide">Calendario</span>
             </button>
         </nav>
         <button id="darkToggle" type="button"
-            class="px-4 py-1.5 border rounded-full text-xs font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1 transition-colors shadow-sm"
+            class="px-4 py-1.5 3xl:px-8 3xl:py-3 4xl:px-12 4xl:py-5 border rounded-full text-xs 3xl:text-base 4xl:text-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1 3xl:gap-3 transition-colors shadow-sm"
             aria-pressed="false" aria-label="Cambiar modo de color">
-            <span class="text-sm">🌙</span> Modo oscuro
+            <span class="text-sm 3xl:text-2xl 4xl:text-3xl">🌙</span> Modo oscuro
         </button>
     </header>
 
-    <main class="w-full max-w-3xl lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[90%] mx-auto p-4">
+    <main class="w-full max-w-3xl lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[95%] 3xl:max-w-[98%] 4xl:max-w-full 4xl:px-12 mx-auto p-4 transition-all">
 
         <!-- ================== INICIO ================== -->
         <section id="homeView" class="flex flex-col items-center gap-8 py-10">
@@ -69,46 +73,45 @@
                 </p>
             </div>
 
-            <div class="w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="w-full max-w-4xl 3xl:max-w-7xl 4xl:max-w-full grid grid-cols-2 md:grid-cols-4 gap-4 3xl:gap-12 4xl:gap-20 transition-all">
                 <!-- Total -->
                 <button onclick="filterFromSummary('all')"
-                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-gray-800 dark:text-gray-100 group">
+                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 3xl:p-12 4xl:p-20 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-gray-800 dark:text-gray-100 group">
                     <span
-                        class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-blue-600 transition-colors">Total</span>
-                    <strong id="summaryTotal" class="text-4xl sm:text-5xl font-bold leading-none">0</strong>
+                        class="text-xs 3xl:text-xl 4xl:text-3xl font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-blue-600 transition-colors">Total</span>
+                    <strong id="summaryTotal" class="text-4xl sm:text-5xl 3xl:text-8xl 4xl:text-[12rem] font-bold leading-none">0</strong>
                 </button>
 
                 <!-- Completadas -->
                 <button onclick="filterFromSummary('completed')"
-                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-green-600 dark:text-green-400 group">
+                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 3xl:p-12 4xl:p-20 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-green-600 dark:text-green-400 group">
                     <span
-                        class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-green-600 transition-colors">Completadas</span>
-                    <strong id="summaryCompleted" class="text-4xl sm:text-5xl font-bold leading-none">0</strong>
+                        class="text-xs 3xl:text-xl 4xl:text-3xl font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-green-600 transition-colors">Completadas</span>
+                    <strong id="summaryCompleted" class="text-4xl sm:text-5xl 3xl:text-8xl 4xl:text-[12rem] font-bold leading-none">0</strong>
                 </button>
 
                 <!-- Pendientes -->
                 <button onclick="filterFromSummary('pending')"
-                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-yellow-600 dark:text-yellow-400 group">
+                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 3xl:p-12 4xl:p-20 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-yellow-600 dark:text-yellow-400 group">
                     <span
-                        class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-yellow-600 transition-colors">Pendientes</span>
-                    <strong id="summaryPending" class="text-4xl sm:text-5xl font-bold leading-none">0</strong>
+                        class="text-xs 3xl:text-xl 4xl:text-3xl font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-yellow-600 transition-colors">Pendientes</span>
+                    <strong id="summaryPending" class="text-4xl sm:text-5xl 3xl:text-8xl 4xl:text-[12rem] font-bold leading-none">0</strong>
                 </button>
 
                 <!-- Para hoy -->
                 <button onclick="filterFromSummary('today')"
-                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-primary dark:text-red-500 group">
+                    class="bg-white/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 3xl:p-12 4xl:p-20 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all text-primary dark:text-red-500 group">
                     <span
-                        class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-primary transition-colors">Para
-                        hoy</span>
-                    <strong id="summaryToday" class="text-4xl sm:text-5xl font-bold leading-none">0</strong>
+                        class="text-xs 3xl:text-xl 4xl:text-3xl font-semibold text-gray-500 tracking-wider uppercase mb-1 group-hover:text-primary transition-colors">Para hoy</span>
+                    <strong id="summaryToday" class="text-4xl sm:text-5xl 3xl:text-8xl 4xl:text-[12rem] font-bold leading-none">0</strong>
                 </button>
             </div>
 
-            <div class="w-full max-w-4xl mt-4">
+            <div class="w-full max-w-4xl 3xl:max-w-7xl 4xl:max-w-full mt-4 transition-all">
                 <p
                     class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium uppercase tracking-wider text-center">
                     Progreso general</p>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 3xl:h-8 4xl:h-12 overflow-hidden shadow-inner">
                     <div id="summaryProgressBar"
                         class="bg-gradient-to-r from-yellow-400 via-orange-500 to-green-500 h-full rounded-full transition-all duration-1000 ease-out"
                         style="width: 0%;"></div>
@@ -118,24 +121,24 @@
 
         <!-- ================== TAREAS ================== -->
         <section id="tasksView" class="hidden">
-            <h2 class="text-xl font-semibold mb-2">Todas las tareas</h2>
-            <p id="taskCounter" class="text-sm text-gray-600 dark:text-gray-300 mb-4">0 tareas</p>
+            <h2 class="text-xl 3xl:text-4xl 4xl:text-6xl font-bold mb-2 transition-all">Todas las tareas</h2>
+            <p id="taskCounter" class="text-sm 3xl:text-2xl 4xl:text-4xl text-gray-600 dark:text-gray-300 mb-4 3xl:mb-10 4xl:mb-16 transition-all">0 tareas</p>
 
             <div
                 class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3 3xl:gap-8 4xl:gap-12">
                     <input type="text" id="filterName" placeholder="Buscar por nombre..." oninput="renderTasks()"
-                        class="flex-1 min-w-[150px] p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm">
+                        class="flex-1 min-w-[150px] p-2.5 3xl:p-6 4xl:p-10 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
                     <select id="filterStatus" onchange="renderTasks()"
-                        class="p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm font-medium">
+                        class="p-2.5 3xl:p-6 4xl:p-10 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl font-medium transition-all">
                         <option value="all">Todas las tareas</option>
                         <option value="pending">Pendientes</option>
                         <option value="completed">Completadas</option>
                     </select>
 
                     <select id="filterPriority" onchange="renderTasks()"
-                        class="p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm font-medium">
+                        class="p-2.5 3xl:p-6 4xl:p-10 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl font-medium transition-all">
                         <option value="all">Cualquier prioridad</option>
                         <option value="Alta">🔴 Alta</option>
                         <option value="Media">🟡 Media</option>
@@ -143,12 +146,11 @@
                     </select>
 
                     <select id="sortOption" onchange="renderTasks()"
-                        class="p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm font-medium">
+                        class="p-2.5 3xl:p-6 4xl:p-10 bg-gray-50 dark:bg-gray-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl font-medium transition-all">
                         <option value="dateAsc">📅 Más próximas</option>
                         <option value="dateDesc">📅 Más lejanas</option>
                         <option value="titleAsc">🔤 Título (A-Z)</option>
                     </select>
-
                 </div>
             </div>
             </div>
@@ -165,36 +167,36 @@
             </div>
 
             <div id="taskList"
-                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"></div>
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 3xl:grid-cols-4 4xl:grid-cols-5 gap-6 3xl:gap-10 4xl:gap-16 transition-all"></div>
         </section>
 
         <!-- ================== CALENDARIO ================== -->
         <section id="calendarView" class="hidden">
             <h2 class="text-xl font-semibold mb-4">Calendario</h2>
 
-            <div class="calendar-header flex items-center justify-between mb-4">
+            <div class="calendar-header flex items-center justify-between mb-4 3xl:mb-12 4xl:mb-20">
                 <button onclick="changeMonth(-1)"
-                    class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">◀</button>
-                <h3 id="monthYear" class="text-lg font-semibold"></h3>
+                    class="px-3 py-1 3xl:px-8 3xl:py-4 4xl:px-12 4xl:py-6 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-lg 3xl:text-4xl 4xl:text-6xl transition-all">◀</button>
+                <h3 id="monthYear" class="text-lg 3xl:text-4xl 4xl:text-6xl font-bold tracking-tight"></h3>
                 <button onclick="changeMonth(1)"
-                    class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">▶</button>
+                    class="px-3 py-1 3xl:px-8 3xl:py-4 4xl:px-12 4xl:py-6 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-lg 3xl:text-4xl 4xl:text-6xl transition-all">▶</button>
             </div>
 
             <div id="calendar" class="grid grid-cols-7 gap-3"></div>
 
             <div id="calendarModal"
-                class="calendar-modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                class="calendar-modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] transition-all">
                 <div
-                    class="calendar-modal-content bg-white dark:bg-gray-800 p-6 rounded-xl max-h-[80%] overflow-y-auto w-96">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 id="modalTitle" class="text-lg font-semibold"></h3>
+                    class="calendar-modal-content bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl max-h-[80%] overflow-y-auto w-96 3xl:w-[40rem] 4xl:w-[60rem]">
+                    <div class="flex justify-between items-center mb-4 3xl:mb-10 4xl:mb-16">
+                        <h3 id="modalTitle" class="text-lg 3xl:text-3xl 4xl:text-5xl font-bold tracking-tight"></h3>
                         <button id="addCalendarTaskBtn"
-                            class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-2xl hover:bg-red-700 shadow-sm leading-none pb-1"
+                            class="bg-primary text-white w-8 3xl:w-16 4xl:w-24 h-8 3xl:h-16 4xl:h-24 rounded-full flex items-center justify-center text-2xl 3xl:text-5xl 4xl:text-7xl hover:bg-red-700 shadow-sm leading-none pb-1"
                             aria-label="Añadir tarea">+</button>
                     </div>
-                    <div id="modalTasks" class="task-grid grid gap-3"></div>
+                    <div id="modalTasks" class="task-grid grid gap-3 3xl:gap-8 4xl:gap-12"></div>
                     <button onclick="closeModal()"
-                        class="mt-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300 w-full font-medium">
+                        class="mt-4 3xl:mt-10 4xl:mt-16 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 3xl:py-6 4xl:py-10 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300 w-full font-bold 3xl:text-2xl 4xl:text-4xl">
                         Cerrar
                     </button>
                 </div>
@@ -202,9 +204,9 @@
 
         <!-- ================== MODAL DE CONFIRMACIÓN AL ELIMINAR ================== -->
         <div id="confirmDeleteModal"
-            class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+            class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60] transition-all">
             <div
-                class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-xs shadow-lg text-center transform transition-all scale-100">
+                class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-xs 3xl:max-w-xl 4xl:max-w-3xl shadow-lg text-center transform transition-all scale-100">
                 <h3 class="text-lg font-semibold mb-4">¿Seguro que quieres eliminar esta tarea?</h3>
                 <div class="flex justify-center gap-3 mt-6">
                     <button type="button" onclick="closeConfirmDeleteModal()"
@@ -216,21 +218,21 @@
         </div>
 
         <!-- ================== MODAL EDICIÓN TAREA ================== -->
-        <div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg">
+        <div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 transition-all">
+            <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-md 3xl:max-w-2xl 4xl:max-w-5xl shadow-lg">
                 <h3 class="text-lg font-semibold mb-4">Editar tarea</h3>
 
-                <div class="flex flex-col gap-3">
-                    <label for="editTaskTitle" class="text-sm font-medium">Título</label>
+                <div class="flex flex-col gap-3 3xl:gap-8 4xl:gap-12">
+                    <label for="editTaskTitle" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Título</label>
                     <input type="text" id="editTaskTitle"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label class="text-sm font-medium">Fecha</label>
-                    <div class="flex gap-2">
+                    <label class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Fecha</label>
+                    <div class="flex gap-2 3xl:gap-6 4xl:gap-10">
                         <select id="editTaskDay"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide"></select>
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl"></select>
                         <select id="editTaskMonth"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary flex-1 scrollbar-hide">
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary flex-1 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl">
                             <option value="01">Enero</option>
                             <option value="02">Febrero</option>
                             <option value="03">Marzo</option>
@@ -245,20 +247,20 @@
                             <option value="12">Diciembre</option>
                         </select>
                         <select id="editTaskYear"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide"></select>
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl"></select>
                     </div>
 
-                    <label for="editTaskTime" class="text-sm font-medium">Hora (opcional)</label>
+                    <label for="editTaskTime" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Hora (opcional)</label>
                     <input type="time" id="editTaskTime"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label for="editTaskCategory" class="text-sm font-medium">Categoría (opcional)</label>
+                    <label for="editTaskCategory" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Categoría (opcional)</label>
                     <input type="text" id="editTaskCategory"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label for="editTaskPriority" class="text-sm font-medium">Prioridad</label>
+                    <label for="editTaskPriority" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Prioridad</label>
                     <select id="editTaskPriority"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all font-medium">
                         <option value="Alta">🔴 Alta</option>
                         <option value="Media">🟡 Media</option>
                         <option value="Baja">🟢 Baja</option>
@@ -279,21 +281,21 @@
         </div>
 
         <!-- ================== MODAL NUEVA TAREA ================== -->
-        <div id="newTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg">
+        <div id="newTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 transition-all">
+            <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-md 3xl:max-w-2xl 4xl:max-w-5xl shadow-lg">
                 <h3 class="text-lg font-semibold mb-4">Nueva tarea</h3>
 
-                <div class="flex flex-col gap-3">
-                    <label for="taskTitle" class="text-sm font-medium">Título de la tarea</label>
+                <div class="flex flex-col gap-3 3xl:gap-8 4xl:gap-12">
+                    <label for="taskTitle" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Título de la tarea</label>
                     <input type="text" id="taskTitle" name="taskTitle" placeholder="¿Qué tienes que hacer?"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label class="text-sm font-medium">Fecha</label>
-                    <div class="flex gap-2">
+                    <label class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Fecha</label>
+                    <div class="flex gap-2 3xl:gap-6 4xl:gap-10">
                         <select id="taskDay"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide"></select>
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl"></select>
                         <select id="taskMonth"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary flex-1 scrollbar-hide">
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary flex-1 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl">
                             <option value="01">Enero</option>
                             <option value="02">Febrero</option>
                             <option value="03">Marzo</option>
@@ -308,21 +310,21 @@
                             <option value="12">Diciembre</option>
                         </select>
                         <select id="taskYear"
-                            class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide"></select>
+                            class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 dark:bg-gray-900 border-none focus:ring-2 focus:ring-primary w-1/4 scrollbar-hide text-sm 3xl:text-2xl 4xl:text-4xl"></select>
                     </div>
 
-                    <label for="taskTime" class="text-sm font-medium">Hora (opcional)</label>
+                    <label for="taskTime" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Hora (opcional)</label>
                     <input type="time" id="taskTime" name="taskTime"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label for="taskCategory" class="text-sm font-medium">Categoría (opcional)</label>
+                    <label for="taskCategory" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Categoría (opcional)</label>
                     <input type="text" id="taskCategory" name="taskCategory"
                         placeholder="Trabajo, estudios, personal..."
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
 
-                    <label for="taskPriority" class="text-sm font-medium">Prioridad</label>
+                    <label for="taskPriority" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Prioridad</label>
                     <select id="taskPriority" name="taskPriority"
-                        class="p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all font-medium">
                         <option value="Alta">🔴 Alta</option>
                         <option value="Media">🟡 Media</option>
                         <option value="Baja">🟢 Baja</option>
@@ -346,7 +348,7 @@
     <!-- END MODALS -->
     <!-- Botón flotante para crear tarea -->
     <button id="fabAddTask" type="button"
-        class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white text-3xl leading-none flex items-center justify-center shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary"
+        class="fixed bottom-6 3xl:bottom-12 4xl:bottom-20 right-6 3xl:right-12 4xl:right-20 w-14 3xl:w-28 4xl:w-40 h-14 3xl:h-28 4xl:h-40 rounded-full bg-primary text-white text-3xl 3xl:text-6xl 4xl:text-8xl leading-none flex items-center justify-center shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all active:scale-90"
         aria-label="Crear nueva tarea" onclick="openNewTaskModal()">
         +
     </button>
