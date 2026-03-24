@@ -3,13 +3,12 @@
  * Soporta detección automática de entorno (Local/Vercel).
  */
 
-// NOTA: Según tu archivo index.js del backend, la ruta base es /post/api/v1/tasks
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const BASE_PATH = '/post/api/v1/tasks';
 
 const API_BASE_URL = isLocal 
     ? `http://localhost:3000${BASE_PATH}` 
-    : BASE_PATH;
+    : `https://taskflow-project-backend.vercel.app${BASE_PATH}`;
 
 /**
  * Obtiene todas las tareas del servidor (GET).
