@@ -24,6 +24,14 @@ app.use((req, res, next) => {
 // Rutas
 app.use('/post/api/v1/tasks', taskRoutes);
 
+// Fallback para servir el frontend en cualquier otra ruta
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/post/api') || req.path.startsWith('/api')) {
+        return next();
+    }
+    res.sendFile(path.join(rootPath, 'index.html'));
+});
+
 
 // Middleware global de errores
 app.use((err, req, res, next) => {
