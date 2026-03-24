@@ -51,7 +51,7 @@ La validación se realiza en la capa de **Services**. Antes de persistir una tar
 El proyecto utiliza `dotenv` para configuraciones sensibles.
 Archivo `.env` requerido:
 ```env
-PORT=3001
+PORT=3000
 ```
 La configuración se centraliza en `src/config/env.js` para evitar el uso de `process.env` disperso por todo el código.
 
