@@ -6,7 +6,7 @@ const taskRoutes = require('./routes/task.routes');
 const path = require('path');
 
 const app = express();
-const rootPath = path.resolve(__dirname, '../../');
+const rootPath = process.cwd();
 
 // Middlewares
 app.use(cors());
