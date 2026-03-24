@@ -2,7 +2,7 @@
  * app.js - Lógica PREMIUM de TaskFlow.
  * Versión final con todas las funcionalidades restauradas.
  */
-import { fetchTasks, createTask, deleteTask, updateTask } from './services/client.js';
+import { fetchTasks, createTask, deleteTask, updateTask } from './api/client.js';
 
 // --- ESTADOS GLOBALES ---
 let tasks = [];
