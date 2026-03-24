@@ -9,7 +9,7 @@ const BASE_PATH = '/post/api/v1/tasks';
 
 const API_BASE_URL = isLocal 
     ? `http://localhost:3000${BASE_PATH}` 
-    : `https://taskflow-project-backend.vercel.app${BASE_PATH}`;
+    : BASE_PATH;
 
 /**
  * Obtiene todas las tareas del servidor (GET).
