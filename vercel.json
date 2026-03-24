@@ -1,18 +1,14 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/post/api/(.*)",
-      "destination": "/server/src/index.js"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/server/src/index.js"
+      "src": "server/src/index.js",
+      "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "server/src/index.js": {
-      "runtime": "@vercel/node"
-    }
-  }
+  "routes": [
+    { "src": "/post/api/v1/tasks(.*)", "dest": "server/src/index.js" },
+    { "src": "/api/v1/tasks(.*)", "dest": "server/src/index.js" },
+    { "src": "/(.*)", "dest": "server/src/index.js" }
+  ]
 }
