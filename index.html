@@ -63,6 +63,16 @@
 
     <main class="w-full max-w-3xl lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[95%] 3xl:max-w-[98%] 4xl:max-w-full 4xl:px-12 mx-auto p-4 transition-all">
 
+        <!-- Indicador de Carga y Errores -->
+        <div id="loading" class="hidden fixed top-0 left-0 w-full h-1 z-[100] bg-gray-200 overflow-hidden">
+            <div class="h-full bg-primary animate-loading-bar"></div>
+            <div class="absolute top-1 left-1/2 -translate-x-1/2 bg-white/80 dark:bg-gray-800/80 px-2 py-0.5 rounded-b text-[10px] font-bold text-primary shadow-sm">Cargando...</div>
+        </div>
+        <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 flex justify-between items-center shadow-sm" role="alert">
+            <span id="errorMessage" class="block sm:inline"></span>
+            <button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-red-700 font-bold ml-4">×</button>
+        </div>
+
         <!-- ================== INICIO ================== -->
         <section id="homeView" class="flex flex-col items-center gap-8 py-10">
             <div class="text-center max-w-md">

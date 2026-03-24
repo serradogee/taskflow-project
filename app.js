@@ -18,71 +18,136 @@ function saveLocalTasks(tasks) {
     } catch (e) { }
 }
 
+/* ==========================================================
+   GESTIÓN DE ESTADOS (LOADING, ERROR)
+   ========================================================== */
+function setLoading(isLoading) {
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) {
+        if (isLoading) {
+            loadingEl.classList.remove('hidden');
+        } else {
+            loadingEl.classList.add('hidden');
+        }
+    }
+}
+
+function showError(message) {
+    const errorEl = document.getElementById('error');
+    const errorMessageEl = document.getElementById('errorMessage');
+    if (errorEl && errorMessageEl) {
+        errorMessageEl.textContent = message;
+        errorEl.classList.remove('hidden');
+        // Ocultar automáticamente tras 5 segundos
+        setTimeout(() => {
+            errorEl.classList.add('hidden');
+        }, 5000);
+    }
+}
+
 async function fetchTasks() {
+    setLoading(true);
     let apiTasks = [];
     if (API_URL) {
         try {
             const response = await fetch(API_URL);
-            if (response.ok) apiTasks = await response.json();
-        } catch (error) { console.warn("Modo local activo."); }
+            if (response.ok) {
+                apiTasks = await response.json();
+            } else {
+                throw new Error('Error al obtener tareas del servidor');
+            }
+        } catch (error) {
+            console.warn("Modo local activo.", error);
+            // No mostramos error persistente aquí porque el modo local es el fallback esperado
+        }
     }
+    setLoading(false);
     const localTasks = getLocalTasks();
     const apiIds = new Set(apiTasks.map(t => String(t.id)));
     return [...apiTasks, ...localTasks.filter(t => !apiIds.has(String(t.id)))];
 }
 
 async function createTask(task) {
-    if (API_URL) {
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(task)
-            });
-            if (response.ok) return await response.json();
-        } catch (error) { }
+    setLoading(true);
+    try {
+        if (API_URL) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(task)
+                });
+                if (response.ok) return await response.json();
+                throw new Error('Error en el servidor al crear la tarea');
+            } catch (error) {
+                console.warn("Error en servidor, guardando localmente.");
+            }
+        }
+        const localTasks = getLocalTasks();
+        const newTask = { ...task, id: `local-${Date.now()}`, isLocal: true };
+        localTasks.push(newTask);
+        saveLocalTasks(localTasks);
+        return newTask;
+    } catch (error) {
+        showError(error.message || "No se pudo crear la tarea");
+        return null;
+    } finally {
+        setLoading(false);
     }
-    const localTasks = getLocalTasks();
-    const newTask = { ...task, id: `local-${Date.now()}`, isLocal: true };
-    localTasks.push(newTask);
-    saveLocalTasks(localTasks);
-    return newTask;
 }
 
 async function deleteTask(id) {
-    const isLocalId = typeof id === 'string' && id.startsWith('local-');
-    if (isLocalId) {
-        const localTasks = getLocalTasks().filter(t => String(t.id) !== String(id));
-        saveLocalTasks(localTasks);
+    setLoading(true);
+    try {
+        const isLocalId = typeof id === 'string' && id.startsWith('local-');
+        if (isLocalId) {
+            const localTasks = getLocalTasks().filter(t => String(t.id) !== String(id));
+            saveLocalTasks(localTasks);
+            return true;
+        }
+        if (API_URL) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (response.ok || response.status === 204) return true;
+                throw new Error('No se pudo eliminar la tarea en el servidor');
+            } catch (e) {
+                showError("Error de conexión al eliminar la tarea");
+                throw e;
+            }
+        }
         return true;
+    } finally {
+        setLoading(false);
     }
-    if (API_URL) {
-        try {
-            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (response.ok || response.status === 204) return true;
-        } catch (e) { }
-    }
-    return true;
 }
 
 async function updateTask(id, updates) {
-    const isLocalId = typeof id === 'string' && id.startsWith('local-');
-    if (isLocalId) {
-        const localTasks = getLocalTasks().map(t => String(t.id) === String(id) ? { ...t, ...updates } : t);
-        saveLocalTasks(localTasks);
-        return localTasks.find(t => String(t.id) === String(id));
+    setLoading(true);
+    try {
+        const isLocalId = typeof id === 'string' && id.startsWith('local-');
+        if (isLocalId) {
+            const localTasks = getLocalTasks().map(t => String(t.id) === String(id) ? { ...t, ...updates } : t);
+            saveLocalTasks(localTasks);
+            return localTasks.find(t => String(t.id) === String(id));
+        }
+        if (API_URL) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                if (response.ok) return await response.json();
+                throw new Error('No se pudo actualizar la tarea en el servidor');
+            } catch (e) {
+                showError("Error de conexión al actualizar la tarea");
+                throw e;
+            }
+        }
+        return { id, ...updates };
+    } finally {
+        setLoading(false);
     }
-    if (API_URL) {
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updates)
-            });
-            if (response.ok) return await response.json();
-        } catch (e) { }
-    }
-    return { id, ...updates };
 }
 
 /* ==========================================================
