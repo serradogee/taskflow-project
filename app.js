@@ -1,8 +1,46 @@
-cd/**
+
  * app.js - Lógica PREMIUM de TaskFlow.
- * Versión final con todas las funcionalidades restauradas.
+ * Versión de alta compatibilidad (sin módulos).
  */
-import { fetchTasks, createTask, deleteTask, updateTask } from './api/client.js';
+
+// --- CONFIGURACIÓN DE API (Antes en client.js) ---
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname;
+const BASE_PATH = '/post/api/v1/tasks';
+const API_BASE_URL = isLocal 
+    ? `http://localhost:3000${BASE_PATH}` 
+    : `https://taskflow-project-backend.vercel.app${BASE_PATH}`;
+
+async function fetchTasks() {
+    const response = await fetch(API_BASE_URL);
+    if (!response.ok) throw new Error(`Error ${response.status}: No se pudieron obtener las tareas.`);
+    return await response.json();
+}
+
+async function createTask(task) {
+    const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}: Error al crear la tarea.`);
+    return await response.json();
+}
+
+async function deleteTask(id) {
+    const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+    if (!response.ok && response.status !== 204) throw new Error(`Error ${response.status}: No se pudo eliminar la tarea.`);
+    return true;
+}
+
+async function updateTask(id, data) {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar la tarea.`);
+    return await response.json();
+}
 
 // --- ESTADOS GLOBALES ---
 let tasks = [];
@@ -127,7 +165,6 @@ window.addTask = async (e) => {
         formTarea.reset();
         window.closeNewTaskModal();
         await cargarDatos();
-        // Confeti eliminado por petición del usuario
     } catch (err) { showError(err.message); }
     finally { setUIState(false); }
 };
@@ -319,12 +356,10 @@ window.openModalWithDate = (d, m, y) => {
 window.closeCalendarModal = () => { document.getElementById('calendarModal')?.classList.replace('flex', 'hidden'); };
 window.openNewTaskModal = () => {
     const modal = document.getElementById('newTaskModal');
-    // Si no se ha pre-rellenado por el calendario, poner la fecha de hoy por defecto
     const d = new Date();
     document.getElementById('taskDay').value = String(d.getDate()).padStart(2, '0');
     document.getElementById('taskMonth').value = String(d.getMonth() + 1).padStart(2, '0');
     document.getElementById('taskYear').value = d.getFullYear();
-    
     modal?.classList.replace('hidden', 'flex');
 };
 window.closeNewTaskModal = () => { document.getElementById('newTaskModal')?.classList.replace('flex', 'hidden'); };
