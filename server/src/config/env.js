@@ -1,10 +1,9 @@
 // src/config/env.js
 require('dotenv').config(); // Carga .env
 
-if (!process.env.PORT) {
-    throw new Error('El puerto no está definido');
-}
+// No lanzar error si falta PORT en Vercel (ellos lo gestionan)
+const portValue = process.env.PORT || 3000;
 
 module.exports = {
-    PORT: process.env.PORT
+    PORT: portValue
 };
