@@ -6,7 +6,7 @@ const taskRoutes = require('./routes/task.routes');
 const path = require('path');
 
 const app = express();
-const rootPath = process.cwd();
+const rootPath = path.resolve(__dirname, '../../');
 
 // Middlewares
 app.use(cors());
@@ -23,7 +23,6 @@ app.use((req, res, next) => {
 
 // Rutas
 app.use('/post/api/v1/tasks', taskRoutes);
-
 
 // Middleware global de errores
 app.use((err, req, res, next) => {
