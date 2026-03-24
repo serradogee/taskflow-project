@@ -176,7 +176,7 @@
                 </button>
             </div>
 
-            <div id="taskList"
+            <div id="tareas"
                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 3xl:grid-cols-4 4xl:grid-cols-5 gap-6 3xl:gap-10 4xl:gap-16 transition-all"></div>
         </section>
 
@@ -295,10 +295,10 @@
             <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-md 3xl:max-w-2xl 4xl:max-w-5xl shadow-lg">
                 <h3 class="text-lg font-semibold mb-4">Nueva tarea</h3>
 
-                <div class="flex flex-col gap-3 3xl:gap-8 4xl:gap-12">
+                <form id="form-tarea" class="flex flex-col gap-3 3xl:gap-8 4xl:gap-12">
                     <label for="taskTitle" class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Título de la tarea</label>
                     <input type="text" id="taskTitle" name="taskTitle" placeholder="¿Qué tienes que hacer?"
-                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all">
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm 3xl:text-2xl 4xl:text-4xl transition-all" required>
 
                     <label class="text-sm 3xl:text-2xl 4xl:text-4xl font-semibold">Fecha</label>
                     <div class="flex gap-2 3xl:gap-6 4xl:gap-10">
@@ -339,18 +339,18 @@
                         <option value="Media">🟡 Media</option>
                         <option value="Baja">🟢 Baja</option>
                     </select>
-                </div>
 
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeNewTaskModal()"
-                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-300">
-                        Cancelar
-                    </button>
-                    <button type="button" onclick="addTask()"
-                        class="px-4 py-2 rounded-lg bg-primary text-white text-sm hover:bg-red-700 transition-colors duration-300">
-                        Crear tarea
-                    </button>
-                </div>
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button type="button" onclick="closeNewTaskModal()"
+                            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-300">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 rounded-lg bg-primary text-white text-sm hover:bg-red-700 transition-colors duration-300">
+                            Crear tarea
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -363,7 +363,7 @@
         +
     </button>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>

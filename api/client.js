@@ -1,99 +1,71 @@
-// api/client.js
-console.log("api/client.js cargado correctamente");
+/**
+ * client.js - Cliente de red para consumir la API de TaskFlow.
+ * Soporta detección automática de entorno (Local/Vercel).
+ */
 
-// Configuración para el profesor: Por defecto usa localStorage cuando no está en localhost
-const _isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const _API_URL = _isLocal ? 'http://localhost:3001/post/api/v1/tasks' : null;
-const _LOCAL_STORAGE_KEY = 'taskflow_local_tasks';
+// NOTA: Según tu archivo index.js del backend, la ruta base es /post/api/v1/tasks
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const BASE_PATH = '/post/api/v1/tasks';
 
-function _getLocalTasks() {
-    try {
-        const data = localStorage.getItem(_LOCAL_STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        return [];
+const API_BASE_URL = isLocal 
+    ? `http://localhost:3000${BASE_PATH}` 
+    : `https://mi-backend.vercel.app${BASE_PATH}`;
+
+/**
+ * Obtiene todas las tareas del servidor (GET).
+ */
+export async function fetchTasks() {
+    const response = await fetch(API_BASE_URL);
+    if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudieron obtener las tareas.`);
     }
+    return await response.json();
 }
 
-function _saveLocalTasks(tasks) {
-    try {
-        localStorage.setItem(_LOCAL_STORAGE_KEY, JSON.stringify(tasks));
-    } catch (e) {}
+/**
+ * Crea una nueva tarea en el servidor (POST).
+ * @param {Object} task - { title: string }
+ */
+export async function createTask(task) {
+    const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+    });
+    if (!response.ok) {
+        throw new Error(`Error ${response.status}: Error al crear la tarea.`);
+    }
+    return await response.json();
 }
 
-async function fetchTasks() {
-    let apiTasks = [];
-    if (_API_URL) {
-        try {
-            const response = await fetch(_API_URL);
-            if (response.ok) apiTasks = await response.json();
-        } catch (error) {
-            console.warn("Servidor no detectado, usando modo local.");
-        }
-    }
-    const localTasks = _getLocalTasks();
-    const apiIds = new Set(apiTasks.map(t => String(t.id)));
-    return [...apiTasks, ...localTasks.filter(t => !apiIds.has(String(t.id)))];
-}
-
-async function createTask(task) {
-    if (_API_URL) {
-        try {
-            const response = await fetch(_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(task)
-            });
-            if (response.ok) return await response.json();
-        } catch (error) {
-            console.warn("Error en servidor, guardando localmente.");
-        }
-    }
-    const localTasks = _getLocalTasks();
-    const newTask = { ...task, id: `local-${Date.now()}`, isLocal: true };
-    localTasks.push(newTask);
-    _saveLocalTasks(localTasks);
-    return newTask;
-}
-
-async function deleteTask(id) {
-    const isLocalId = typeof id === 'string' && id.startsWith('local-');
-    if (isLocalId) {
-        const localTasks = _getLocalTasks().filter(t => String(t.id) !== String(id));
-        _saveLocalTasks(localTasks);
-        return true;
-    }
-    if (_API_URL) {
-        try {
-            const response = await fetch(`${_API_URL}/${id}`, { method: 'DELETE' });
-            if (response.ok || response.status === 204) return true;
-        } catch (e) {}
+/**
+ * Elimina una tarea por ID (DELETE).
+ * @param {string|number} id - El ID de la tarea en el servidor.
+ */
+export async function deleteTask(id) {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE'
+    });
+    // Algunos servidores devuelven 204 No Content sin cuerpo JSON
+    if (!response.ok && response.status !== 204) {
+        throw new Error(`Error ${response.status}: No se pudo eliminar la tarea.`);
     }
     return true;
 }
 
-async function updateTask(id, updates) {
-    const isLocalId = typeof id === 'string' && id.startsWith('local-');
-    if (isLocalId) {
-        const localTasks = _getLocalTasks().map(t => String(t.id) === String(id) ? { ...t, ...updates } : t);
-        _saveLocalTasks(localTasks);
-        return localTasks.find(t => String(t.id) === String(id));
+/**
+ * Actualiza una tarea por ID (PUT).
+ * @param {string|number} id 
+ * @param {Object} data 
+ */
+export async function updateTask(id, data) {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudo actualizar la tarea.`);
     }
-    if (_API_URL) {
-        try {
-            const response = await fetch(`${_API_URL}/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updates)
-            });
-            if (response.ok) return await response.json();
-        } catch (e) {}
-    }
-    return { id, ...updates };
+    return await response.json();
 }
-
-// Exportar al objeto global explícitamente por si acaso
-window.fetchTasks = fetchTasks;
-window.createTask = createTask;
-window.deleteTask = deleteTask;
-window.updateTask = updateTask;
