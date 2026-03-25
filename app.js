@@ -8,6 +8,7 @@ let tasks = [];
 let currentDate = new Date();
 let editingTaskId = null;
 let expandedGroups = new Set();
+let isGroupedByDate = true;
 const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 // --- SELECTORES ---
@@ -220,6 +221,17 @@ window.toggleDateGroup = (date) => {
     renderTasks();
 };
 
+window.toggleViewMode = () => {
+    isGroupedByDate = !isGroupedByDate;
+    const icon = document.getElementById('viewToggleIcon');
+    const text = document.getElementById('viewToggleText');
+    if (icon && text) {
+        icon.textContent = isGroupedByDate ? '📑' : '📁';
+        text.textContent = isGroupedByDate ? 'Vista lista' : 'Vista por fecha';
+    }
+    renderTasks();
+};
+
 window.renderTasks = () => {
     if (!tareasContainer) return;
     const nF = document.getElementById('filterName')?.value.toLowerCase() || '';
@@ -232,55 +244,84 @@ window.renderTasks = () => {
                (pF === 'all' || t.priority === pF);
     });
 
-    // Agrupar por fecha
-    const groups = filtered.reduce((acc, task) => {
-        const date = task.date || 'Sin fecha';
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(task);
-        return acc;
-    }, {});
-
-    // Ordenar fechas (más cercanas primero)
-    const sortedDates = Object.keys(groups).sort((a, b) => {
-        if (a === 'Sin fecha') return 1;
-        if (b === 'Sin fecha') return -1;
-        return new Date(a) - new Date(b);
-    });
-
     tareasContainer.innerHTML = '';
-    tareasContainer.className = 'flex flex-col gap-6 w-full'; // Cambiar grid a flex column para grupos
-
-    sortedDates.forEach(date => {
-        const dateTasks = groups[date];
-        const isCollapsed = !expandedGroups.has(date);
+    
+    if (isGroupedByDate) {
+        tareasContainer.className = 'flex flex-col gap-6 w-full';
         
-        // Formatear fecha para el encabezado
-        let displayDate = date;
-        if (date !== 'Sin fecha') {
-            const [y, m, d] = date.split('-');
-            displayDate = `${d} de ${monthNames[parseInt(m) - 1]} ${y}`;
-        }
+        // Agrupar por fecha
+        const groups = filtered.reduce((acc, task) => {
+            const date = task.date || 'Sin fecha';
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(task);
+            return acc;
+        }, {});
 
-        const groupDiv = document.createElement('div');
-        groupDiv.className = `date-group ${isCollapsed ? 'collapsed' : ''}`;
-        
-        groupDiv.innerHTML = `
-            <div class="date-header" onclick="window.toggleDateGroup('${date}')">
-                <div class="flex items-center gap-3">
-                    <span class="accordion-icon">
-                        <svg class="w-4 h-4 3xl:w-8 3xl:h-8 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </span>
-                    <h3 class="3xl:text-3xl 4xl:text-5xl font-bold">${displayDate}</h3>
+        // Ordenar fechas (más cercanas primero)
+        const sortedDates = Object.keys(groups).sort((a, b) => {
+            if (a === 'Sin fecha') return 1;
+            if (b === 'Sin fecha') return -1;
+            return new Date(a) - new Date(b);
+        });
+
+        sortedDates.forEach(date => {
+            const dateTasks = groups[date];
+            const isCollapsed = !expandedGroups.has(date);
+            
+            // Formatear fecha para el encabezado
+            let displayDate = date;
+            if (date !== 'Sin fecha') {
+                const [y, m, d] = date.split('-');
+                displayDate = `${d} de ${monthNames[parseInt(m) - 1]} ${y}`;
+            }
+
+            const groupDiv = document.createElement('div');
+            groupDiv.className = `date-group ${isCollapsed ? 'collapsed' : ''}`;
+            
+            groupDiv.innerHTML = `
+                <div class="date-header" onclick="window.toggleDateGroup('${date}')">
+                    <div class="flex items-center gap-3">
+                        <span class="accordion-icon">
+                            <svg class="w-4 h-4 3xl:w-8 3xl:h-8 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                        <h3 class="3xl:text-3xl 4xl:text-5xl font-bold">${displayDate}</h3>
+                    </div>
+                    <span class="count 3xl:text-xl 4xl:text-3xl">${dateTasks.length} ${dateTasks.length === 1 ? 'tarea' : 'tareas'}</span>
                 </div>
-                <span class="count 3xl:text-xl 4xl:text-3xl">${dateTasks.length} ${dateTasks.length === 1 ? 'tarea' : 'tareas'}</span>
-            </div>
-            <div class="date-tasks"></div>
-        `;
+                <div class="date-tasks"></div>
+            `;
 
-        const tasksList = groupDiv.querySelector('.date-tasks');
-        dateTasks.forEach(t => {
+            const tasksList = groupDiv.querySelector('.date-tasks');
+            dateTasks.forEach(t => {
+                const color = t.priority === 'Alta' ? 'red' : (t.priority === 'Media' ? 'yellow' : 'green');
+                const card = document.createElement('div');
+                card.className = `task-card bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border-l-4 border-${color}-500 transition-all ${t.completed ? 'opacity-50 grayscale' : ''}`;
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTask('${t.id}')" class="mt-1 w-5 h-5 cursor-pointer">
+                        <div class="flex-1">
+                            <h4 class="font-bold ${t.completed ? 'line-through text-gray-400' : ''}">${t.title}</h4>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">
+                                ${t.category ? `${t.category} • ` : ''}${t.date || 'Sin fecha'} • ${t.time || 'Todo el día'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <button onclick="window.openEditModal('${t.id}')" class="text-xs text-blue-500 font-bold hover:underline">Editar</button>
+                        <button onclick="window.eliminarTarea('${t.id}')" class="text-xs text-red-500 font-bold hover:underline">Eliminar</button>
+                    </div>
+                `;
+                tasksList.appendChild(card);
+            });
+
+            tareasContainer.appendChild(groupDiv);
+        });
+    } else {
+        // Vista plana (todas juntas)
+        tareasContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 3xl:grid-cols-4 4xl:grid-cols-5 gap-6 3xl:gap-10 4xl:gap-16';
+        filtered.forEach(t => {
             const color = t.priority === 'Alta' ? 'red' : (t.priority === 'Media' ? 'yellow' : 'green');
             const card = document.createElement('div');
             card.className = `task-card bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border-l-4 border-${color}-500 transition-all ${t.completed ? 'opacity-50 grayscale' : ''}`;
@@ -299,11 +340,9 @@ window.renderTasks = () => {
                     <button onclick="window.eliminarTarea('${t.id}')" class="text-xs text-red-500 font-bold hover:underline">Eliminar</button>
                 </div>
             `;
-            tasksList.appendChild(card);
+            tareasContainer.appendChild(card);
         });
-
-        tareasContainer.appendChild(groupDiv);
-    });
+    }
 
     document.getElementById('taskCounter').textContent = `${filtered.length} tareas`;
 };
