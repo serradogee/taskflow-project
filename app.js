@@ -351,38 +351,61 @@ window.renderCalendar = () => {
     const calendar = document.getElementById('calendar');
     const monthYear = document.getElementById('monthYear');
     if (!calendar || !monthYear) return;
+
     calendar.innerHTML = '';
     const y = currentDate.getFullYear();
     const m = currentDate.getMonth();
     const today = new Date();
     monthYear.textContent = `${monthNames[m]} ${y}`;
+
+    // --- ENCABEZADOS DE DÍAS ---
+    const daysOfWeek = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+    daysOfWeek.forEach(day => {
+        const header = document.createElement('div');
+        header.className = "text-center font-bold text-[10px] 3xl:text-xl 4xl:text-3xl py-2 text-gray-500 uppercase tracking-wider";
+        header.textContent = day;
+        calendar.appendChild(header);
+    });
+
+    // --- DÍAS DEL MES ---
+    // getDay(): 0 (Dom), 1 (Lun)... 6 (Sáb)
+    // Queremos que Lun sea 0, así que: (day + 6) % 7
     const firstDay = new Date(y, m, 1).getDay();
+    const spaces = firstDay === 0 ? 6 : firstDay - 1;
     const days = new Date(y, m + 1, 0).getDate();
-    for (let i = 0; i < firstDay; i++) calendar.appendChild(document.createElement('div'));
+
+    // Espacios vacíos
+    for (let i = 0; i < spaces; i++) calendar.appendChild(document.createElement('div'));
+
+    // Celdas de días
     for (let d = 1; d <= days; d++) {
         const isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
         const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayTasks = tasks.filter(t => t.date === dateStr);
+
         const dayEl = document.createElement('div');
-        dayEl.className = `bg-white dark:bg-gray-800 p-2 min-h-[80px] rounded-xl border cursor-pointer hover:shadow-md transition-all ${isToday ? 'ring-2 ring-primary' : 'border-gray-100 dark:border-gray-700'}`;
-        dayEl.innerHTML = `<span class="text-xs font-bold ${isToday ? 'text-primary' : 'text-gray-400'}">${d}</span>`;
+        dayEl.className = `bg-white dark:bg-gray-800 p-2 min-h-[80px] 3xl:min-h-[150px] 4xl:min-h-[250px] rounded-xl border cursor-pointer hover:shadow-md transition-all ${isToday ? 'ring-2 ring-primary border-primary' : 'border-gray-100 dark:border-gray-700'}`;
+        
+        dayEl.innerHTML = `<span class="text-xs 3xl:text-2xl 4xl:text-4xl font-bold ${isToday ? 'text-primary' : 'text-gray-400'}">${d}</span>`;
+
         if (dayTasks.length > 0) {
             const taskList = document.createElement('div');
-            taskList.className = "flex flex-col gap-0.5 mt-1 overflow-hidden";
+            taskList.className = "flex flex-col gap-1 mt-1 overflow-hidden";
             dayTasks.slice(0, 3).forEach(dt => {
                 const c = dt.priority === 'Alta' ? 'bg-red-500' : (dt.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-500');
                 taskList.innerHTML += `
                     <div class="flex items-center gap-1">
-                        <div class="w-1 h-1 rounded-full ${c} shrink-0"></div>
-                        <span class="text-[8px] truncate dark:text-gray-300">${dt.title}</span>
+                        <div class="w-1 h-1 3xl:w-2 3xl:h-2 rounded-full ${c} shrink-0"></div>
+                        <span class="text-[8px] 3xl:text-lg 4xl:text-2xl truncate dark:text-gray-300">${dt.title}</span>
                     </div>
                 `;
             });
             if (dayTasks.length > 3) {
-                taskList.innerHTML += `<span class="text-[7px] text-gray-400">+ ${dayTasks.length - 3} más</span>`;
+                taskList.innerHTML += `<span class="text-[7px] 3xl:text-base 4xl:text-xl text-gray-400">+ ${dayTasks.length - 3} más</span>`;
             }
             dayEl.appendChild(taskList);
         }
+
         dayEl.onclick = () => window.openCalendarModal(d, m + 1, y, dayTasks);
         calendar.appendChild(dayEl);
     }
