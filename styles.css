@@ -113,6 +113,111 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
+/* ========================= TAREAS AGRUPADAS ========================= */
+.date-group {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.date-header {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px border-gray-100;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark .date-header {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(55, 65, 81, 1);
+}
+
+.date-header:hover {
+    transform: translateX(4px);
+    background: white;
+}
+
+.dark .date-header:hover {
+    background: rgba(55, 65, 81, 0.9);
+}
+
+.date-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #111;
+}
+
+.dark .date-header h3 {
+    color: #f3f4f6;
+}
+
+.date-header .count {
+    font-size: 0.8rem;
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.dark .date-header .count {
+    background: #374151;
+    color: #9ca3af;
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+}
+
+.date-group.collapsed .accordion-icon {
+    transform: rotate(-90deg);
+}
+
+.date-tasks {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 5000px;
+    opacity: 1;
+}
+
+@media (min-width: 640px) {
+    .date-tasks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+    .date-tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) {
+    .date-tasks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2560px) {
+    .date-tasks { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+.date-group.collapsed .date-tasks {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
 /* RESPONSIVE */
 @media (max-width: 700px) {
     .task-grid {
