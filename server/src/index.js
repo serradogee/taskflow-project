@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { PORT } = require('./config/env');
 const taskRoutes = require('./routes/task.routes');
+const expenseRoutes = require('./routes/expense.routes');
 const path = require('path');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 
 // Rutas
 app.use('/post/api/v1/tasks', taskRoutes);
+app.use('/post/api/v1/expenses', expenseRoutes);
 
 // Middleware global de errores
 app.use((err, req, res, next) => {
