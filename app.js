@@ -9,6 +9,10 @@ let currentDate = new Date();
 let editingTaskId = null;
 let expandedGroups = new Set();
 let isGroupedByDate = true;
+let expenses = [];
+let editingExpenseId = null;
+let currentExpenseDate = new Date();
+let userCategories = JSON.parse(localStorage.getItem('taskflow_categories')) || ['Gasolina', 'Comida', 'Ocio', 'Hogar'];
 const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 // --- SELECTORES ---
@@ -66,11 +70,20 @@ window.deleteAllCompleted = async () => {
 // GESTIÓN DE VISTAS
 // ==========================================
 window.showView = (viewId) => {
-    ['homeView', 'tasksView', 'calendarView'].forEach(id => {
+    ['homeView', 'tasksView', 'calendarView', 'expensesView'].forEach(id => {
         document.getElementById(id)?.classList.toggle('hidden', id !== viewId);
     });
+    
+    // Ocultar botón flotante principal en la vista de gastos
+    const fab = document.getElementById('fabAddTask');
+    if (fab) {
+        if (viewId === 'expensesView') fab.classList.add('hidden');
+        else fab.classList.remove('hidden');
+    }
+
     if (viewId === 'calendarView') renderCalendar();
     if (viewId === 'tasksView') renderTasks();
+    if (viewId === 'expensesView') renderExpensesChart();
     actualizarResumen();
 };
 
@@ -99,9 +112,13 @@ async function cargarDatos() {
     setUIState(true);
     try {
         tasks = await fetchTasks();
+        try { expenses = await fetchExpenses(); } catch(e) { console.error("Error gastos:", e); expenses = []; }
         actualizarResumen();
         renderTasks();
         renderCalendar();
+        if(document.getElementById('expensesView') && !document.getElementById('expensesView').classList.contains('hidden')) {
+            renderExpensesChart();
+        }
     } catch (err) { showError(err.message); }
     finally { setUIState(false); }
 }
@@ -386,7 +403,7 @@ window.renderCalendar = () => {
         const dayEl = document.createElement('div');
         dayEl.className = `bg-white dark:bg-gray-800 p-2 min-h-[80px] 3xl:min-h-[150px] 4xl:min-h-[250px] rounded-xl border cursor-pointer hover:shadow-md transition-all ${isToday ? 'ring-2 ring-primary border-primary' : 'border-gray-100 dark:border-gray-700'}`;
         
-        dayEl.innerHTML = `<span class="text-xs 3xl:text-2xl 4xl:text-4xl font-bold ${isToday ? 'text-primary' : 'text-gray-400'}">${d}</span>`;
+        dayEl.innerHTML = `<span class="text-sm 3xl:text-3xl 4xl:text-5xl font-bold ${isToday ? 'text-primary' : 'text-gray-400'}">${d}</span>`;
 
         if (dayTasks.length > 0) {
             const taskList = document.createElement('div');
@@ -394,14 +411,14 @@ window.renderCalendar = () => {
             dayTasks.slice(0, 3).forEach(dt => {
                 const c = dt.priority === 'Alta' ? 'bg-red-500' : (dt.priority === 'Media' ? 'bg-yellow-500' : 'bg-green-500');
                 taskList.innerHTML += `
-                    <div class="flex items-center gap-1">
-                        <div class="w-1 h-1 3xl:w-2 3xl:h-2 rounded-full ${c} shrink-0"></div>
-                        <span class="text-[8px] 3xl:text-lg 4xl:text-2xl truncate dark:text-gray-300">${dt.title}</span>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 3xl:w-3 3xl:h-3 rounded-full ${c} shrink-0"></div>
+                        <span class="text-xs font-semibold 3xl:text-xl 4xl:text-3xl truncate dark:text-gray-300 text-gray-800">${dt.title}</span>
                     </div>
                 `;
             });
             if (dayTasks.length > 3) {
-                taskList.innerHTML += `<span class="text-[7px] 3xl:text-base 4xl:text-xl text-gray-400">+ ${dayTasks.length - 3} más</span>`;
+                taskList.innerHTML += `<span class="text-[10px] font-bold 3xl:text-lg 4xl:text-2xl text-gray-500 mt-1">+ ${dayTasks.length - 3} más</span>`;
             }
             dayEl.appendChild(taskList);
         }
@@ -448,6 +465,279 @@ window.openNewTaskModal = () => {
 };
 window.closeNewTaskModal = () => { document.getElementById('newTaskModal')?.classList.replace('flex', 'hidden'); };
 
+window.handleGlobalFabClick = () => {
+    const isExpensesVisible = !document.getElementById('expensesView').classList.contains('hidden');
+    if (isExpensesVisible) {
+        window.openNewExpenseModal();
+    } else {
+        window.openNewTaskModal();
+    }
+};
+
+window.changeExpenseMonth = (d) => { 
+    currentExpenseDate.setMonth(currentExpenseDate.getMonth() + d); 
+    renderExpensesChart(); 
+};
+
+window.renderExpensesChart = () => {
+    const chartContainer = document.getElementById('expensesChartContainer');
+    const monthYear = document.getElementById('expenseMonthYear');
+    const totalAmountEl = document.getElementById('expenseTotalAmount');
+    if (!chartContainer || !monthYear) return;
+
+    const y = currentExpenseDate.getFullYear();
+    const m = currentExpenseDate.getMonth();
+    monthYear.textContent = `${monthNames[m]} ${y}`;
+
+    const monthExpenses = expenses.filter(e => {
+        if (!e.date) return false;
+        const [ey, em] = e.date.split('-');
+        return Number(ey) === y && Number(em) === (m + 1);
+    });
+
+    const totalsByCategory = {};
+    userCategories.forEach(c => totalsByCategory[c] = 0);
+    let totalMonth = 0;
+
+    monthExpenses.forEach(e => {
+        const cat = e.category || 'Otros';
+        if (!totalsByCategory[cat]) totalsByCategory[cat] = 0;
+        totalsByCategory[cat] += Number(e.amount);
+        totalMonth += Number(e.amount);
+    });
+
+    totalAmountEl.textContent = `${totalMonth.toFixed(2)} €`;
+    const maxAmount = Math.max(...Object.values(totalsByCategory), 10); 
+    
+    chartContainer.innerHTML = '';
+
+    Object.entries(totalsByCategory).forEach(([category, amount]) => {
+        if (amount === 0 && !userCategories.includes(category)) return;
+
+        const heightPercent = Math.max((amount / maxAmount) * 100, 5);
+        const isZero = amount === 0;
+
+        const barGroup = document.createElement('div');
+        barGroup.className = 'flex flex-col items-center justify-end h-full min-w-[60px] 3xl:min-w-[100px] cursor-pointer group flex-shrink-0 hover:scale-105 transition-transform';
+        barGroup.onclick = () => {
+            const m = currentExpenseDate.getMonth() + 1;
+            const y = currentExpenseDate.getFullYear();
+            const catExps = expenses.filter(ex => ex.category === category && Number(ex.date.split('-')[0]) === y && Number(ex.date.split('-')[1]) === m);
+            window.openCategoryExpensesModal(category, catExps);
+        };
+
+        barGroup.innerHTML = `
+            <span class="text-xs 3xl:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 whitespace-nowrap">${amount.toFixed(2)}€</span>
+            <div class="w-10 3xl:w-16 rounded-t-md transition-all duration-500 shadow-md ${isZero ? 'bg-gray-200 dark:bg-gray-700 h-[5%]' : 'bg-primary'}" 
+                 style="height: ${heightPercent}%;"></div>
+            <span class="text-[10px] 3xl:text-lg text-gray-500 font-semibold mt-2 truncate w-full max-w-[60px] 3xl:max-w-[100px] text-center" title="${category}">${category}</span>
+        `;
+        chartContainer.appendChild(barGroup);
+    });
+};
+
+window.openNewExpenseModal = (expenseToEdit = null) => {
+    const modal = document.getElementById('newExpenseModal');
+    
+    const select = document.getElementById('expenseCategory');
+    select.innerHTML = userCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+    if(!userCategories.includes('Otros')) select.innerHTML += `<option value="Otros">Otros</option>`;
+
+    const d = new Date();
+    let selYear = currentExpenseDate.getFullYear();
+    let selMonth = String(currentExpenseDate.getMonth() + 1).padStart(2, '0');
+    let selDay = String(d.getDate()).padStart(2, '0');
+
+    if (expenseToEdit && expenseToEdit.id) {
+        editingExpenseId = expenseToEdit.id;
+        document.getElementById('expenseAmount').value = expenseToEdit.amount;
+        select.value = expenseToEdit.category || userCategories[0];
+        if (expenseToEdit.date) {
+            const [y, m, day] = expenseToEdit.date.split('-');
+            selYear = y; selMonth = m; selDay = day;
+        }
+    } else {
+        editingExpenseId = null;
+        document.getElementById('form-expense').reset();
+    }
+
+    const eDay = document.getElementById('expenseDay');
+    const eMon = document.getElementById('expenseMonth');
+    const eYer = document.getElementById('expenseYear');
+    if (eDay) eDay.value = selDay;
+    if (eMon) eMon.value = selMonth;
+    if (eYer) eYer.value = selYear;
+
+    modal?.classList.remove('hidden');
+    modal?.classList.add('flex');
+};
+
+window.closeNewExpenseModal = () => { document.getElementById('newExpenseModal')?.classList.replace('flex', 'hidden'); };
+
+window.editarGasto = (id) => {
+    const gasto = expenses.find(e => e.id == id);
+    if (gasto) window.openNewExpenseModal(gasto);
+};
+
+window.addExpense = async (e) => {
+    if(e && e.preventDefault) e.preventDefault();
+    
+    const amount = document.getElementById('expenseAmount').value;
+    const category = document.getElementById('expenseCategory').value;
+    const dateStr = `${document.getElementById('expenseYear').value}-${document.getElementById('expenseMonth').value}-${document.getElementById('expenseDay').value}`;
+
+    setUIState(true);
+    try {
+        if (editingExpenseId) {
+            const gasto = expenses.find(ex => ex.id == editingExpenseId);
+            if (gasto) {
+                await updateExpense(editingExpenseId, { ...gasto, amount, category, date: dateStr });
+            }
+            editingExpenseId = null;
+        } else {
+            await createExpense({ amount, category, date: dateStr });
+        }
+
+        document.getElementById('form-expense').reset();
+        window.closeNewExpenseModal();
+        await cargarDatos();
+
+        // Refrescar el modal de detalles de categoría si está abierto
+        const catModal = document.getElementById('categoryExpensesModal');
+        if (!catModal.classList.contains('hidden')) {
+            const m = currentExpenseDate.getMonth() + 1;
+            const y = currentExpenseDate.getFullYear();
+            const catExpenses = expenses.filter(ex => ex.category === category && Number(ex.date.split('-')[0]) === y && Number(ex.date.split('-')[1]) === m);
+            window.openCategoryExpensesModal(category, catExpenses);
+        }
+    } catch (err) { showError(err.message); }
+    finally { setUIState(false); }
+    return false;
+};
+
+window.openCategoryExpensesModal = (category, catExpenses) => {
+    const modal = document.getElementById('categoryExpensesModal');
+    document.getElementById('categoryModalTitle').textContent = `Gastos: ${category}`;
+    
+    const list = document.getElementById('categoryExpensesList');
+    list.innerHTML = catExpenses.length ? '' : '<p class="text-xs text-gray-500 text-center py-2">Sin gastos en este mes.</p>';
+    
+    catExpenses.forEach(e => {
+        list.innerHTML += `
+            <div class="p-2 border rounded-lg flex justify-between items-center text-sm 3xl:text-2xl bg-gray-50 dark:bg-gray-700">
+                <span><strong class="text-primary">${Number(e.amount).toFixed(2)}€</strong> el ${e.date.split('-').reverse().join('/')}</span>
+                <div class="flex gap-3">
+                    <button onclick="window.editarGasto(${e.id})" class="text-blue-500 hover:scale-110" title="Editar gasto">✏️</button>
+                    <button onclick="window.eliminarGasto(${e.id}, '${category}')" class="text-red-500 hover:scale-110" title="Eliminar gasto">🗑</button>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById('quickExpenseAmount').dataset.category = category;
+    document.getElementById('quickExpenseAmount').value = '';
+
+    modal.classList.replace('hidden', 'flex');
+};
+
+window.closeCategoryExpensesModal = () => { document.getElementById('categoryExpensesModal').classList.replace('flex', 'hidden'); };
+
+window.submitQuickExpense = async () => {
+    const input = document.getElementById('quickExpenseAmount');
+    const amount = input.value;
+    const category = input.dataset.category;
+    if (!amount || amount <= 0) return;
+
+    const today = new Date();
+    let d = String(today.getDate()).padStart(2, '0');
+    if (today.getMonth() !== currentExpenseDate.getMonth() || today.getFullYear() !== currentExpenseDate.getFullYear()) {
+        d = '01';
+    }
+    const m = String(currentExpenseDate.getMonth() + 1).padStart(2, '0');
+    const y = currentExpenseDate.getFullYear();
+
+    setUIState(true);
+    try {
+        await createExpense({ amount, category, date: `${y}-${m}-${d}` });
+        await cargarDatos();
+        
+        const catExpenses = expenses.filter(e => e.category === category && Number(e.date.split('-')[0]) === y && Number(e.date.split('-')[1]) === Number(m));
+        window.openCategoryExpensesModal(category, catExpenses);
+    } catch (err) { showError(err.message); }
+    finally { setUIState(false); }
+};
+
+window.eliminarGasto = async (id, category) => {
+    if (!confirm('¿Eliminar gasto?')) return;
+    setUIState(true);
+    try {
+        await deleteExpense(id);
+        await cargarDatos();
+        
+        const m = currentExpenseDate.getMonth() + 1;
+        const y = currentExpenseDate.getFullYear();
+        const catExpenses = expenses.filter(e => e.category === category && Number(e.date.split('-')[0]) === y && Number(e.date.split('-')[1]) === m);
+        
+        window.openCategoryExpensesModal(category, catExpenses);
+    } catch (err) { showError(err.message); }
+    finally { setUIState(false); }
+};
+
+window.openCategoriesManager = () => {
+    const modal = document.getElementById('categoryManagerModal');
+    renderCategoriesList();
+    modal.classList.replace('hidden', 'flex');
+};
+
+window.closeCategoryManagerModal = () => { document.getElementById('categoryManagerModal').classList.replace('flex', 'hidden'); };
+
+window.renderCategoriesList = () => {
+    const list = document.getElementById('categoriesList');
+    list.innerHTML = '';
+    userCategories.forEach(c => {
+        list.innerHTML += `
+            <div class="p-2 border rounded-lg flex justify-between items-center bg-gray-50 dark:bg-gray-700 text-sm 3xl:text-2xl">
+                <span>${c}</span>
+                <button onclick="window.removeCategory('${c}')" class="text-red-500 hover:text-red-700 font-bold" title="Eliminar categoría">🗑</button>
+            </div>
+        `;
+    });
+};
+
+window.addCategory = () => {
+    const input = document.getElementById('newCategoryName');
+    const val = input.value.trim();
+    if (!val) return;
+    // Primera letra en mayuscula para consistencia
+    const normVal = val.charAt(0).toUpperCase() + val.slice(1);
+    if (!userCategories.includes(normVal)) {
+        userCategories.push(normVal);
+        localStorage.setItem('taskflow_categories', JSON.stringify(userCategories));
+        input.value = '';
+        renderCategoriesList();
+        renderExpensesChart();
+    }
+};
+
+window.removeCategory = async (cat) => {
+    if(!confirm(`¿Borrar categoría "${cat}" y TODOS sus gastos asociados? Esta acción no se puede deshacer.`)) return;
+    
+    setUIState(true);
+    try {
+        const gastosDeCatergoria = expenses.filter(e => e.category === cat);
+        await Promise.all(gastosDeCatergoria.map(e => deleteExpense(e.id)));
+        
+        userCategories = userCategories.filter(c => c !== cat);
+        localStorage.setItem('taskflow_categories', JSON.stringify(userCategories));
+        
+        await cargarDatos();
+        renderCategoriesList();
+        renderExpensesChart();
+    } catch (err) { showError(err.message); }
+    finally { setUIState(false); }
+};
+
+
 function actualizarResumen() {
     const total = tasks.length;
     const done = tasks.filter(t => t.completed).length;
@@ -464,13 +754,16 @@ function initKeyListeners() {
             window.closeCalendarModal();
             window.closeNewTaskModal();
             window.closeEditModal();
+            if(window.closeNewExpenseModal) window.closeNewExpenseModal();
+            if(window.closeCategoryExpensesModal) window.closeCategoryExpensesModal();
+            if(window.closeCategoryManagerModal) window.closeCategoryManagerModal();
         }
     };
 }
 
 function poblarSelects() {
-    const dS = [document.getElementById('taskDay'), document.getElementById('editTaskDay')];
-    const yS = [document.getElementById('taskYear'), document.getElementById('editTaskYear')];
+    const dS = [document.getElementById('taskDay'), document.getElementById('editTaskDay'), document.getElementById('expenseDay')];
+    const yS = [document.getElementById('taskYear'), document.getElementById('editTaskYear'), document.getElementById('expenseYear')];
     dS.forEach(s => { if (s) { s.innerHTML = ""; for (let i = 1; i <= 31; i++) s.innerHTML += `<option value="${String(i).padStart(2, '0')}">${i}</option>`; } });
     yS.forEach(s => { if (s) { s.innerHTML = ""; for (let i = 2024; i <= 2026; i++) s.innerHTML += `<option value="${i}">${i}</option>`; } });
 }

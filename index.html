@@ -53,6 +53,10 @@
                 onclick="showView('calendarView')" title="Calendario">
                 <span class="text-xl 3xl:text-3xl 4xl:text-4xl">📅</span> <span class="font-bold tracking-wide">Calendario</span>
             </button>
+            <button type="button" class="nav-btn flex items-center gap-1.5 3xl:gap-3 hover:scale-105 transition-transform"
+                onclick="showView('expensesView')" title="Gastos">
+                <span class="text-xl 3xl:text-3xl 4xl:text-4xl">💰</span> <span class="font-bold tracking-wide">Gastos</span>
+            </button>
         </nav>
         <button id="darkToggle" type="button"
             class="px-4 py-1.5 3xl:px-8 3xl:py-3 4xl:px-12 4xl:py-5 border rounded-full text-xs 3xl:text-base 4xl:text-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1 3xl:gap-3 transition-colors shadow-sm"
@@ -217,6 +221,34 @@
                 </div>
         </section>
 
+        <!-- ================== GASTOS ================== -->
+        <section id="expensesView" class="hidden">
+            <h2 class="text-xl font-semibold mb-4 3xl:text-4xl 4xl:text-6xl">Gastos</h2>
+            
+            <div class="calendar-header flex items-center justify-between mb-4 3xl:mb-12 4xl:mb-20">
+                <button onclick="changeExpenseMonth(-1)"
+                    class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-lg transition-all 3xl:text-4xl 4xl:text-6xl 3xl:px-8 3xl:py-4 4xl:px-12 4xl:py-6">◀</button>
+                <div class="flex flex-col items-center">
+                    <h3 id="expenseMonthYear" class="text-lg font-bold tracking-tight 3xl:text-4xl 4xl:text-6xl"></h3>
+                    <p class="text-gray-500 text-sm mt-1 3xl:text-2xl 4xl:text-4xl">Total Gastado: <span id="expenseTotalAmount" class="text-red-500 font-bold">0.00 €</span></p>
+                </div>
+                <button onclick="changeExpenseMonth(1)"
+                    class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-lg transition-all 3xl:text-4xl 4xl:text-6xl 3xl:px-8 3xl:py-4 4xl:px-12 4xl:py-6">▶</button>
+            </div>
+
+            <!-- Gráfico de barras -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-64 3xl:h-96 4xl:h-[40rem] flex items-end gap-6 overflow-x-auto mb-6 relative" id="expensesChartContainer">
+                <!-- Las barras se inyectarán aquí -->
+            </div>
+            
+            <div class="flex justify-end gap-4 mb-6">
+                 <button type="button" onclick="openNewExpenseModal()"
+                    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 shadow-sm 3xl:text-2xl 4xl:text-4xl 3xl:px-8 3xl:py-4 4xl:px-12 4xl:py-6">
+                    <span>+</span> Añadir Gasto
+                </button>
+            </div>
+        </section>
+
         <!-- ================== MODAL DE CONFIRMACIÓN AL ELIMINAR ================== -->
         <div id="confirmDeleteModal"
             class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60] transition-all">
@@ -359,12 +391,98 @@
             </div>
         </div>
 
+        <!-- ================== MODAL NUEVO GASTO ================== -->
+        <div id="newExpenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[90] transition-all">
+            <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-md 3xl:max-w-2xl 4xl:max-w-5xl shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 3xl:text-3xl 4xl:text-5xl">Añadir Gasto</h3>
+
+                <form id="form-expense" class="flex flex-col gap-3 3xl:gap-8 4xl:gap-12" onsubmit="return window.addExpense(event)">
+                    <label for="expenseAmount" class="text-sm font-semibold 3xl:text-2xl 4xl:text-4xl">Cantidad (€)</label>
+                    <input type="number" id="expenseAmount" name="expenseAmount" step="0.01" min="0" placeholder="0.00"
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary w-full text-sm 3xl:text-2xl 4xl:text-4xl dark:bg-gray-900" required>
+                    
+                    <div class="flex justify-between items-end">
+                        <label for="expenseCategory" class="text-sm font-semibold 3xl:text-2xl 4xl:text-4xl">Categoría</label>
+                        <button type="button" onclick="openCategoriesManager()" class="text-xs text-blue-500 hover:text-blue-700 font-bold 3xl:text-xl 4xl:text-3xl flex items-center gap-1">Gestionar ⚙️</button>
+                    </div>
+                    <select id="expenseCategory" name="expenseCategory"
+                        class="p-2 3xl:p-6 4xl:p-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary w-full text-sm 3xl:text-2xl 4xl:text-4xl dark:bg-gray-900">
+                        <!-- Options generated by JS -->
+                    </select>
+
+                    <label class="text-sm font-semibold 3xl:text-2xl 4xl:text-4xl">Fecha</label>
+                    <div class="flex gap-2 3xl:gap-6 4xl:gap-10">
+                        <select id="expenseDay" class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 border-none w-1/4 dark:bg-gray-900 text-sm 3xl:text-2xl 4xl:text-4xl scrollbar-hide"></select>
+                        <select id="expenseMonth" class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 border-none flex-1 dark:bg-gray-900 text-sm 3xl:text-2xl 4xl:text-4xl scrollbar-hide">
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <select id="expenseYear" class="p-2 3xl:p-6 4xl:p-10 rounded-lg bg-gray-50 border-none w-1/4 dark:bg-gray-900 text-sm 3xl:text-2xl 4xl:text-4xl scrollbar-hide"></select>
+                    </div>
+
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button type="button" onclick="closeNewExpenseModal()" class="px-4 py-2 3xl:px-8 3xl:py-4 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700 text-sm 3xl:text-2xl 4xl:text-4xl transition-colors">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 3xl:px-8 3xl:py-4 rounded-lg bg-primary text-white hover:bg-red-700 text-sm 3xl:text-2xl 4xl:text-4xl transition-colors">Añadir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================== MODAL DE CATEGORÍA (Detalles) ================== -->
+        <div id="categoryExpensesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[80] transition-all">
+            <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-md 3xl:max-w-2xl 4xl:max-w-5xl shadow-lg max-h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center mb-4 3xl:mb-8">
+                    <h3 id="categoryModalTitle" class="text-lg font-bold 3xl:text-3xl 4xl:text-5xl">Gastos: Categoría</h3>
+                    <button type="button" onclick="closeCategoryExpensesModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-bold text-xl 3xl:text-4xl">&times;</button>
+                </div>
+                
+                <div id="categoryExpensesList" class="flex-1 overflow-y-auto flex flex-col gap-2 mb-4 3xl:gap-6">
+                    <!-- Gastos de la categoría -->
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-700 mt-2">
+                     <p class="text-sm font-semibold mb-2 3xl:text-2xl 4xl:text-4xl">Añadir nuevo gasto aquí</p>
+                     <div class="flex gap-2 3xl:gap-6">
+                        <input type="number" id="quickExpenseAmount" step="0.01" placeholder="Cantidad (€)" class="p-2 3xl:p-6 4xl:p-10 border rounded-lg flex-1 dark:bg-gray-900 dark:border-gray-600 text-sm 3xl:text-2xl 4xl:text-4xl outline-none focus:ring-2 focus:ring-primary">
+                        <button type="button" onclick="submitQuickExpense()" class="bg-primary text-white px-4 3xl:px-8 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors">+</button>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================== MODAL GESTOR DE CATEGORÍAS ================== -->
+        <div id="categoryManagerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100] transition-all">
+             <div class="bg-white dark:bg-gray-800 p-6 3xl:p-12 4xl:p-20 rounded-xl w-full max-w-sm 3xl:max-w-xl 4xl:max-w-3xl shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 3xl:text-3xl 4xl:text-5xl">Gestión de Categorías</h3>
+                <div class="flex gap-2 mb-4 3xl:gap-6">
+                    <input type="text" id="newCategoryName" placeholder="Nueva categoría..." class="p-2 3xl:p-6 4xl:p-10 border rounded-lg flex-1 focus:ring-2 focus:ring-primary outline-none dark:bg-gray-900 dark:border-gray-600 text-sm 3xl:text-2xl 4xl:text-4xl">
+                    <button type="button" onclick="addCategory()" class="bg-green-600 text-white px-4 3xl:px-8 rounded-lg font-bold text-xl hover:bg-green-700 transition-colors">+</button>
+                </div>
+                <div id="categoriesList" class="flex flex-col gap-2 3xl:gap-6 max-h-64 3xl:max-h-96 overflow-y-auto pr-2">
+                    <!-- Lista de categorías puras -->
+                </div>
+                <div class="mt-6 text-right">
+                    <button type="button" onclick="closeCategoryManagerModal()" class="px-4 py-2 3xl:px-8 3xl:py-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm 3xl:text-2xl 4xl:text-4xl transition-colors">Cerrar</button>
+                </div>
+             </div>
+        </div>
+
     </main>
     <!-- END MODALS -->
-    <!-- Botón flotante para crear tarea -->
+    <!-- Botón flotante para crear tarea o gasto -->
     <button id="fabAddTask" type="button"
         class="fixed bottom-6 3xl:bottom-12 4xl:bottom-20 right-6 3xl:right-12 4xl:right-20 w-14 3xl:w-28 4xl:w-40 h-14 3xl:h-28 4xl:h-40 rounded-full bg-primary text-white text-3xl 3xl:text-6xl 4xl:text-8xl leading-none flex items-center justify-center shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all active:scale-90"
-        aria-label="Crear nueva tarea" onclick="openNewTaskModal()">
+        aria-label="Crear nueva tarea o gasto" onclick="handleGlobalFabClick()">
         +
     </button>
 
